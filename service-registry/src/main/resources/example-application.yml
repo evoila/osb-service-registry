@@ -1,0 +1,32 @@
+## Spring parameters ##
+spring:
+  application:
+    name: osb-service-registry
+  jpa:
+    hibernate:
+      # create - for force overwrite
+      # update - for generation of new elements
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        ## Possible dialects
+        # dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        # dialect: org.hibernate.dialect.MySQL5Dialect
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/service_registry?useSSL=false
+    username: username
+    password: password
+
+## Security parameters ##
+
+# Basic Auth Credentials
+login:
+  username: user
+  password: password
+  role: USER
+
+
+

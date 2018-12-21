@@ -1,0 +1,12 @@
+osb-service-registry.iml
+.idea/
+target/
+service-registry.iml
+repo-parent.iml
+manifest.yml
+service-registry/service-broker-template.log
+service-broker-template.log
+service-registry/src/main/resources/application.yml
+service-registry/src/main/resources/application-test.yml
+service-registry/src/main/resources/application-local.yml
+service-registry/src/main/resources/application-cf.yml

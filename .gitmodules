@@ -1,0 +1,3 @@
+[submodule "osb-core"]
+	path = osb-core
+	url = git@github.com:evoila/osb-core.git
