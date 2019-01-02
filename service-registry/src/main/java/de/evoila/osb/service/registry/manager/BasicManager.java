@@ -40,9 +40,8 @@ public class BasicManager<T extends Identifiable> {
      */
     public Optional<T> update(T t) {
         Optional<T> existing = get(t.getId());
-        if (existing.isPresent()) {
+        if (existing.isPresent())
             return Optional.<T>of(repository.save(t));
-        }
         return Optional.<T>empty();
     }
 

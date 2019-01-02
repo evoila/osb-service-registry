@@ -5,6 +5,7 @@ import de.evoila.osb.service.registry.data.repositories.ServiceBrokerRepository;
 import de.evoila.osb.service.registry.model.CloudSite;
 import de.evoila.osb.service.registry.model.ResponseWithHttpStatus;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
+import de.evoila.osb.service.registry.properties.ServiceRegistryBean;
 import de.evoila.osb.service.registry.web.request.services.ShadowServiceCatalogRequestService;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.web.AsyncCatalogUpdateTask;
@@ -32,16 +33,17 @@ import java.util.concurrent.FutureTask;
 public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
 
     private static Logger log = LoggerFactory.getLogger(ServiceBrokerManager.class);
-    private static final int CATALOG_UPDATE_MAX_THREAD_COUNT = 30;
-
 
     private CloudSiteManager siteManager;
     private ServiceDefinitionCacheManager cacheManager;
+    private ServiceRegistryBean serviceRegistryBean;
+    private final int catalogUpdateMaxThreadCount;
 
-    public ServiceBrokerManager(ServiceBrokerRepository repository, @Lazy CloudSiteManager siteManager, ServiceDefinitionCacheManager cacheManager) {
+    public ServiceBrokerManager(ServiceBrokerRepository repository, @Lazy CloudSiteManager siteManager, ServiceDefinitionCacheManager cacheManager, ServiceRegistryBean serviceRegistryBean) {
         super(repository);
         this.siteManager = siteManager;
         this.cacheManager = cacheManager;
+        catalogUpdateMaxThreadCount = serviceRegistryBean.getUpdateThreadNumber();
     }
 
     /**
@@ -49,7 +51,7 @@ public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
      *
      * @param serviceBroker service broker object to add the cloud site
      * @param cloudSite     cloud site object to add
-     * @return {@linkplain Optional} with the updated service broker or with the unchanged service broker
+     * @return {@linkplain Optional} with the updated service broker, with the unchanged service broker or an empty one
      */
     public Optional<ServiceBroker> addCloudSite(ServiceBroker serviceBroker, CloudSite cloudSite) {
         if (serviceBroker.getSites().contains(cloudSite))
@@ -89,7 +91,7 @@ public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
 
     /**
      * Triggers a catalog update for every service broker in the storage.
-     * This will be done via {@linkplain FutureTask} asynchronously!
+     * This will be done via {@linkplain FutureTask} in parallel!
      *
      * @param forceUpdate flag to indicate a forced catalog update
      */
@@ -102,7 +104,7 @@ public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
 
         if (brokersCount == 0) return;
 
-        ExecutorService executor = Executors.newFixedThreadPool(Math.max(brokersCount, CATALOG_UPDATE_MAX_THREAD_COUNT));
+        ExecutorService executor = Executors.newFixedThreadPool(Math.min(brokersCount, catalogUpdateMaxThreadCount));
         List<FutureTask<String>> tasks = new LinkedList<FutureTask<String>>();
 
         for (ServiceBroker serviceBroker : brokers) {
