@@ -10,7 +10,7 @@
 
 The shadow service broker is a feature of the service registry to be compatible with unaltered platforms. The service registry masks itself as a service broker and implements the standard osb-api. The service registry will gather every catalog of all its service brokers and provides the platform with a list of all service definitions.
 
-Sharing instances is possible with the shadow service broker feature, but loses comfort in usage.The shared instances will occure as an additional service defintion in the catalog for the user to create a service instance, which will be handled similar to an existing service creation in the background of the service registry.
+Sharing instances is possible with the shadow service broker feature, but loses comfort in usage.The shared instances will occur as an additional service definition in the catalog for the user to create a service instance, which will be handled similar to an existing service creation in the background of the service registry.
 
 Following json is an example body for /v2/catalog call that holds two service definitions from service brokers and two shared instances 
 ```json

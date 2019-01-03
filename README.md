@@ -15,6 +15,8 @@
 
 The Service Registry is an application build to handle the challenges when working with multiple PaaS platforms and service brokers.
 
+
+
 ## Challenges with multiple PaaS platforms and service brokers
 
 ### Number of references
@@ -27,7 +29,7 @@ Using the same service instance for multiple bindings is a common use case but i
 
 ### Limitations of the osb-api
 
-Understandibly the open service broker api currently does not hold the tools the service registry needs to work as intended, since it was not designed with this idea in mind. Therefore the service registry will be using an extended osb-api for its services, which means an alteration on the platform's side is necessary. For unaltered platforms, the service registry has a "shadow service broker" feature. For further information about the shadow service broker see [Shadow Service Broker](documentation/shadowservicebroker.md).
+Understandably the open service broker api currently does not hold the tools the service registry needs to work as intended, since it was not designed with this idea in mind. Therefore the service registry will be using an extended osb-api for its services, which means an alteration on the platform's side is necessary. For unaltered platforms, the service registry has a "shadow service broker" feature. For further information about the shadow service broker see [Shadow Service Broker](documentation/shadowservicebroker.md).
 
 ### Authentication and Authorization
 
@@ -38,7 +40,7 @@ Keeping track of who has access to which service brokers gets more and more conf
 * Centralize management of service brokers
 * Enable sharing and access to shared instances
 * Automatic update of service broker catalogs at the platforms
-* Centralize authorization
+* Centralize authorization for service broker and instance access
 
 ---
 <p align="center">
