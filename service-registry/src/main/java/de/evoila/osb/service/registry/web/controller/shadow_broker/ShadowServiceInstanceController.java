@@ -136,7 +136,7 @@ public class ShadowServiceInstanceController extends BaseController {
 
         // Check that the instance does not exist already, otherwise do not add a new instance.
         // This can be caused by an additional async create call for an already existing instance in creation progress (See OSB specification for async instance provisioning).
-        if (!serviceInstanceManager.get(serviceInstanceId).isPresent()) {
+        if (!serviceInstanceManager.exists(serviceInstanceId)) {
             RegistryServiceInstance registryServiceInstance = new RegistryServiceInstance(
                     serviceInstanceId, request.getServiceDefinitionId(), request.getPlanId(), request.getOrganizationGuid(),
                     request.getSpaceGuid(), "", false, false, true,
@@ -160,7 +160,7 @@ public class ShadowServiceInstanceController extends BaseController {
             String originatingIdentity,
             ServiceInstanceRequest request) throws ResourceNotFoundException, NotSharedException {
 
-        if (serviceInstanceManager.get(serviceInstanceId).isPresent())
+        if (serviceInstanceManager.exists(serviceInstanceId))
             return new ResponseEntity<String>("", HttpStatus.CONFLICT);
 
         RegistryServiceInstance sharedOfInstance = serviceInstanceManager.searchServiceInstance(request.getPlanId());

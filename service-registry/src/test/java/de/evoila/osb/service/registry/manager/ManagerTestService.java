@@ -14,7 +14,7 @@ public class ManagerTestService {
     }
 
     public static <T extends Identifiable> void get(BasicManager<T> manager, T randomObject, boolean alreadyAdded) {
-        assertFalse("Expected null when getting a specific object before saving it.", !alreadyAdded && manager.get(randomObject.getId()).isPresent());
+        assertFalse("Expected null when getting a specific object before saving it.", !alreadyAdded && manager.exists(randomObject));
         Optional<T> savedObject = alreadyAdded ? Optional.<T>of(randomObject) : manager.add(randomObject);
         assertOptionalIsPresent(savedObject);
         T receivedObject = manager.get(savedObject.get().getId()).get();

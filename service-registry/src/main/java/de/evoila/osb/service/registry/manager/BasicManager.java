@@ -27,7 +27,7 @@ public class BasicManager<T extends Identifiable> {
      * @return An empty {@linkplain Optional} if there is already an object with the same id or an {@linkplain Optional} with the updated saved object.
      */
     public Optional<T> add(T t) {
-        if (get(t.getId()).isPresent())
+        if (exists(t.getId()))
             return Optional.<T>empty();
         return Optional.<T>of(repository.save(t));
     }
@@ -39,8 +39,7 @@ public class BasicManager<T extends Identifiable> {
      * @return An empty {@linkplain Optional} if there is no object with the same id or an {@linkplain Optional} with the updated saved object.
      */
     public Optional<T> update(T t) {
-        Optional<T> existing = get(t.getId());
-        if (existing.isPresent())
+        if (exists(t))
             return Optional.<T>of(repository.save(t));
         return Optional.<T>empty();
     }
@@ -50,13 +49,22 @@ public class BasicManager<T extends Identifiable> {
     }
 
     public void remove(String id) {
-        Optional<T> t = get(id);
-        if (t.isPresent())
-            repository.delete(t.get());
+        if (exists(id))
+            repository.deleteById(id);
     }
 
     public void clear() {
         repository.deleteAll();
+    }
+
+    public boolean exists(String id) {
+        return repository.existsById(id);
+    }
+
+    public boolean exists(T t) {
+        if (t != null && t.getId() != null || !t.getId().isEmpty())
+            return exists(t.getId());
+        return false;
     }
 
 }
