@@ -2,12 +2,11 @@ package de.evoila.osb.service.registry.web.controller.service_broker;
 
 
 import de.evoila.cf.broker.model.catalog.ServiceDefinition;
-import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
-import de.evoila.osb.service.registry.util.IdService;
 import de.evoila.osb.service.registry.exceptions.InvalidFieldException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.manager.ServiceBrokerManager;
 import de.evoila.osb.service.registry.manager.ServiceDefinitionCacheManager;
+import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
 import de.evoila.osb.service.registry.web.controller.BaseController;
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class CatalogController extends BaseController {
@@ -37,7 +35,7 @@ public class CatalogController extends BaseController {
     @GetMapping(value = "/brokers/{brokerId}/v2/catalog")
     public ResponseEntity<?> getCatalog(@PathVariable String brokerId) throws InvalidFieldException, ResourceNotFoundException {
         log.info("Catalog request received for: " + brokerId);
-        ServiceBroker serviceBroker = getServiceBrokerWithExistenceCheck(brokerId);
+        ServiceBroker serviceBroker = sbManager.getServiceBrokerWithExistenceCheck(brokerId);
 
         sbManager.updateServiceBrokerCatalog(serviceBroker, false);
 
@@ -51,14 +49,4 @@ public class CatalogController extends BaseController {
         return new ResponseEntity<CatalogResponse>(new CatalogResponse(services), HttpStatus.OK);
     }
 
-    private ServiceBroker getServiceBrokerWithExistenceCheck(String serviceBrokerId) throws InvalidFieldException, ResourceNotFoundException {
-        if (!IdService.verifyId(serviceBrokerId))
-            throw new InvalidFieldException("service-broker");
-
-        Optional<ServiceBroker> serviceBroker = sbManager.get(serviceBrokerId);
-        if (!serviceBroker.isPresent())
-            throw new ResourceNotFoundException("service broker");
-
-        return serviceBroker.get();
-    }
 }

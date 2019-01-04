@@ -2,14 +2,16 @@ package de.evoila.osb.service.registry.manager;
 
 import de.evoila.cf.broker.model.catalog.ServiceDefinition;
 import de.evoila.osb.service.registry.data.repositories.ServiceBrokerRepository;
+import de.evoila.osb.service.registry.exceptions.InvalidFieldException;
+import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.CloudSite;
 import de.evoila.osb.service.registry.model.ResponseWithHttpStatus;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.properties.ServiceRegistryBean;
-import de.evoila.osb.service.registry.web.request.services.ShadowServiceCatalogRequestService;
-import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
+import de.evoila.osb.service.registry.util.IdService;
 import de.evoila.osb.service.registry.web.AsyncCatalogUpdateTask;
 import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
+import de.evoila.osb.service.registry.web.request.services.ShadowServiceCatalogRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -231,5 +233,17 @@ public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
         }
         log.debug("No matching service broker found for " + serviceInstanceId);
         throw new ResourceNotFoundException("service instance", resourceNotFoundExceptionCustomStatusCode);
+    }
+
+
+    public ServiceBroker getServiceBrokerWithExistenceCheck(String serviceBrokerId) throws InvalidFieldException, ResourceNotFoundException {
+        if (!IdService.verifyId(serviceBrokerId))
+            throw new InvalidFieldException("service-broker");
+
+        Optional<ServiceBroker> serviceBroker = get(serviceBrokerId);
+        if (!serviceBroker.isPresent())
+            throw new ResourceNotFoundException("service broker");
+
+        return serviceBroker.get();
     }
 }
