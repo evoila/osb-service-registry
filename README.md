@@ -6,11 +6,14 @@
         * 1.1.3 [Limitations of the osb-api](#limitations-of-the-osb-api)
         * 1.1.4 [Authentication and Authorization](#Authentication-and-Authorization)
     * 2.1 [Goals of this project](#Goals-of-this-project)
-2. [Submodules](documentation/submodules.md)
+2. [Requirements](documentation/requirements.md)
 3. [Installation](documentation/installation.md)
 4. [API](documentation/api.md)
 5. [Shadow Service Broker](documentation/shadowservicebroker.md)
+6. [Service Broker Communication](documentation/servicebrokercommunication.md)
+7. [Tests](documentation/tests.md)  
 ---
+
 # OSB Service Registry
 
 The Service Registry is an application build to handle the challenges when working with multiple PaaS platforms and service brokers.
@@ -45,5 +48,5 @@ Keeping track of who has access to which service brokers gets more and more conf
 ---
 <p align="center">
 	<span>&nbsp; || &nbsp;</span> 
-    <span><a href="documentation/submodules.md">Next -></a></span>
+    <span><a href="documentation/requirements.md">Next -></a></span>
 </p>

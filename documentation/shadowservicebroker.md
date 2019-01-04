@@ -1,18 +1,22 @@
 # Table of Contents
 1. [OSB Service Registry](../README.md)
-2. [Submodules](./submodules.md)
+2. [Requirements](./requirements.md)
 3. [Installation](./installation.md)
 4. [API](./api.md)
 5. [Shadow Service Broker](#shadow-service-broker)
+6. [Service Broker Communication](./servicebrokercommunication.md)
+7. [Tests](./tests.md)  
 ---
 
 # Shadow Service Broker
 
-The shadow service broker is a feature of the service registry to be compatible with unaltered platforms. The service registry masks itself as a service broker and implements the standard osb-api. The service registry will gather every catalog of all its service brokers and provides the platform with a list of all service definitions.
+The shadow service broker is a feature of the service registry to be compatible with unaltered platforms. The service registry masks itself as a service broker and implements the standard osb-api 2.14. The service registry will gather every catalog of all its service brokers and provides the platform with a list of all service definitions.
 
-Sharing instances is possible with the shadow service broker feature, but loses comfort in usage.The shared instances will occur as an additional service definition in the catalog for the user to create a service instance, which will be handled similar to an existing service creation in the background of the service registry.
+**Note:** Although the service registry does implement the osb-API, it is possible for API tests like the [osb-checker] or the [osb-checker-kotlin] to fail, because the service registry might have to return a different error code, when two or more error cases occur at the same time. An example would be calling a synchronous instance deletion on a not existing service instance will be answered with a 410 by the service registry, but the expected error by the osb-checker is 422. This deviation from the specification is necessary, because the service registry needs to allow the access to the service broker, based on its known instances and binding, before actually sending a request, and will not compromise the usage since the result stays the same.
 
-Following json is an example body for /v2/catalog call that holds two service definitions from service brokers and two shared instances 
+Sharing instances is possible with the shadow service broker feature, but loses comfort in usage. The shared instances will occur as an additional service definition in the catalog for the user to create a service instance, which will be handled similar to an existing service creation in the background of the service registry. But values like organization, space and plan id have to be moved further down the tree as well as the actual plan id field is used for the service instance id.
+
+Following json is an example body for /v2/catalog call that holds two service definitions from service brokers and two shared instances:
 ```json
 {
     "services": [
@@ -123,8 +127,9 @@ Following json is an example body for /v2/catalog call that holds two service de
 <p align="center">
     <span ><a href="./api.md"><- Previous</a></span>
 	    <span>&nbsp; | &nbsp;</span> 
-    <!--<span><a href="documentation/shadowservicebroker.md">Next -></a></span> -->
+    <span><a href="./servicebrokercommunication.md">Next -></a></span>
 </p>
 
 
-  
+[osb-checker]: https://github.com/openservicebrokerapi/osb-checker
+[osb-checker-kotlin]: https://github.com/evoila/osb-checker-kotlin 
