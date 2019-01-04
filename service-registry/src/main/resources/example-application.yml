@@ -1,3 +1,11 @@
+## Parameters for the service registry ##
+registry:
+  generate_entities: true
+  update_thread_number: 15
+  timeout_connection: 10000
+  timeout_read: 20000
+
+
 ## Spring parameters ##
 spring:
   application:

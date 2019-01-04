@@ -13,12 +13,20 @@ import org.springframework.web.client.RestTemplate;
 
 public class BaseRequestService {
 
-    public static final int TIMEOUT_CONNECTION = 10000;
-    public static final int TIMEOUT_READ = 30000;
-
     private static Logger log = LoggerFactory.getLogger(BaseRequestService.class);
 
+    private static int connectionTimeout;
+    private static int readTimeout;
+
     private static RestTemplate restTemplate;
+
+    public static int getConnectionTimeout() { return connectionTimeout; }
+
+    public static void setConnectionTimeout(int connectionTimeout) { BaseRequestService.connectionTimeout = connectionTimeout; }
+
+    public static int getReadTimeout() { return readTimeout; }
+
+    public static void setReadTimeout(int readTimeout) { BaseRequestService.readTimeout = readTimeout; }
 
     public static RestTemplate createRestTemplateWithTimeouts(int connectionTimeout, int readTimeout) {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
@@ -29,7 +37,7 @@ public class BaseRequestService {
 
     public static RestTemplate getRestTemplate() {
         if (restTemplate == null)
-            restTemplate = createRestTemplateWithTimeouts(TIMEOUT_CONNECTION, TIMEOUT_READ);
+            restTemplate = createRestTemplateWithTimeouts(connectionTimeout, readTimeout);
         return restTemplate;
     }
 
