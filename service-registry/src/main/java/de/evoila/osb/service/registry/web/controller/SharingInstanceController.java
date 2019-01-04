@@ -1,12 +1,12 @@
 package de.evoila.osb.service.registry.web.controller;
 
-import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
-import de.evoila.osb.service.registry.model.service.broker.SharedContext;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.manager.RegistryServiceInstanceManager;
 import de.evoila.osb.service.registry.manager.ServiceBrokerManager;
 import de.evoila.osb.service.registry.manager.SharedInstancesManager;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
+import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
+import de.evoila.osb.service.registry.model.service.broker.SharedContext;
 import de.evoila.osb.service.registry.web.bodies.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class SharingInstanceController extends BaseController {
     @PatchMapping(value = "/service_instance/{instanceId}/shareable")
     public ResponseEntity<?> shareable(
             @PathVariable("instanceId") String serviceInstanceId,
-            @RequestParam(value = "sharing") boolean sharing) throws ResourceNotFoundException {
+            @RequestParam(value = "sharing", defaultValue = "false") boolean sharing) throws ResourceNotFoundException {
         log.info("Received sharing managing request");
 
         ServiceBroker serviceBroker = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId, HttpStatus.NOT_FOUND);
