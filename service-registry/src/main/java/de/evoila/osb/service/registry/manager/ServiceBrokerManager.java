@@ -140,7 +140,7 @@ public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
         try {
             ResponseWithHttpStatus<CatalogResponse> response = ShadowServiceCatalogRequestService.getCatalog(broker);
             if (response != null && response.getBody() != null && response.getBody().getServices() != null) {
-                log.debug("Caching received catalog for " + broker.getId());
+                log.debug("Caching received catalog for " + broker.getLoggingNameString());
                 cacheManager.put(broker.getId(), response.getBody().getServices());
             } else {
                 if (response != null)
