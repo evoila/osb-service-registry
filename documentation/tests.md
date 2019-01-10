@@ -6,6 +6,9 @@
 5. [Shadow Service Broker](./shadowservicebroker.md)
 6. [Service Broker Communication](./servicebrokercommunication.md)
 7. [Tests](#tests)  
+    * 7.1 [JUnit Tests](#junit-tests)
+    * 7.1.1 [Manager Tests](#manager-tests)
+    * 7.2 [Shadow Service Broker Tests](#shadow-service-broker-tests)
 ---
 
 # Tests

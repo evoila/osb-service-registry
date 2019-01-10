@@ -15,7 +15,7 @@ Generally speaking, the service registry forwards incoming calls for the service
 
 Furthermore requests to delete a service instance with still active bindings are blocked by the service registry with a 412 Precondition Failed error to ensure no creation of orphaned bindings.
 
-Shared instances have an additional protection. Delete service instance calls on a shared instance with more than one reference will not result in an actual deletion of the service instance at the service broker, but remove the entry from the service registry (if all other requirements are met). Trying to unshare a shared service with more than one reference is not allowed and will be answered with a 400 error code.
+Shared instances have an additional protection. Delete service instance calls on a shared instance with more than one reference will not result in an actual deletion of the service instance at the service broker, but remove the entry from the service registry (if all other requirements are met). Trying to stop sharing a shared service with more than one reference is not allowed and will be answered with a 400 error code.
 
 ## Catalogs
 

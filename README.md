@@ -16,9 +16,7 @@
 
 # OSB Service Registry
 
-The Service Registry is an application build to handle the challenges when working with multiple PaaS platforms and service brokers.
-
-
+The Service Registry is an application build to handle the challenges when working with multiple PaaS platforms and service brokers. Build with the Spring Framework, it is meant to centralize access points for service broker and PaaS platforms, as well as enable sharing of service instance across platforms.
 
 ## Challenges with multiple PaaS platforms and service brokers
 

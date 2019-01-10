@@ -16,7 +16,7 @@ To build and run this application, some requirements have to be met first.
 
 ## Submodules
 
-This project uses git submodules for direct access to other evoila repositories and source code.
+This project uses git submodules for direct access to other evoila repositories and source code. Make sure to initialize the submodules before trying to build the project.
 
 The repository [osb-core](https://github.com/evoila/osb-core) holds three different modules from which the security and model modules are used in the service registry.
 
