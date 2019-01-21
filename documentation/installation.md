@@ -19,13 +19,14 @@ The sources in this repository have to be build first and supplied with a proper
 Using the Spring Framework, configuration of the application can be done via for example a .yml or .properties file. The resource path is `{project-root}/service-registry/src/main/resources` and contains an example configuration file. Furthermore the directory contains the logback.xml file for changing the logging levels of the application.
 
 Following configuration parameters exist:
+
 | Parameter | Type | Description |
-|----|----|----|
-| registry.update_thread_number | integer | Maximum thread pool size when updating catalogs |
+| ------------- | ------------- | ------------- |
+| registry.update_thread_number  | integer | Maximum thread pool size when updating catalogs |
 | registry.timeout_connection | integer | Timeout for connection with service brokers |
 | registry.timeout_read | integer | Timeout for reading responses of service brokers |
-| spring.application.name<span></span> | String | Name of the spring application|
-| spring.jpa.hibernate.ddl-auto | String | Option for hibernate DDL validation and export (see [community documentation])|
+| spring.application.name<span></span> | String | Name of the spring application |
+| spring.jpa.hibernate.ddl-auto | String | Option for hibernate DDL validation and export (see [community documentation]) |
 | spring.jpa.hibernate.dialect | String | SQL dialect of the underlying database |
 | spring.datasource.url | String | Connection string for the database |
 | spring.datasource.username | String | Username for the database |
