@@ -1,9 +1,7 @@
 package de.evoila.osb.service.registry.manager;
 
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -13,6 +11,13 @@ public class ManagerTestService {
         manager.clear();
     }
 
+    /**
+     * Tests the existence of the given object in the storage.
+     * @param manager manager object to use for storage operations
+     * @param randomObject the object to use
+     * @param alreadyAdded whether the randomObject was already added to the storage and has the correct id
+     * @param <T> identifiable class to use for the test and for the manager
+     */
     public static <T extends Identifiable> void get(BasicManager<T> manager, T randomObject, boolean alreadyAdded) {
         assertFalse("Expected null when getting a specific object before saving it.", !alreadyAdded && manager.exists(randomObject));
         Optional<T> savedObject = alreadyAdded ? Optional.<T>of(randomObject) : manager.add(randomObject);
@@ -21,7 +26,16 @@ public class ManagerTestService {
         assertTrue("Expected an equal object when getting a specific object.", receivedObject.equals(savedObject.get()));
     }
 
-    public static <T extends Identifiable> void getAll(BasicManager<T> manager, T random1, T random2) {
+    /**
+     * Tests the existence of the given list of objects in the storage.
+     * @param manager manager object to use for storage operations
+     * @param randomObjects list of objects to use
+     * @param alreadyAdded whether the randomObjects were already added to the storage and have the correct id
+     * @param <T> identifiable class to use for the test and for the manager
+     */
+    public static <T extends Identifiable> void getAll(BasicManager<T> manager, List<T> randomObjects, boolean alreadyAdded) {
+        assertTrue("No objects given to add, therefore this test will be useless.", randomObjects != null && randomObjects.size() > 0);
+
         Iterator<T> iterator = manager.getAll().iterator();
         assertFalse("Expected an empty list.", iterator.hasNext());
         try {
@@ -30,17 +44,20 @@ public class ManagerTestService {
         } catch (NoSuchElementException ex) {
         }
 
-        Optional<T> savedObject1 = manager.add(random1);
-        assertOptionalIsPresent(savedObject1);
-        Optional<T> savedObject2 = manager.add(random2);
-        assertOptionalIsPresent(savedObject2);
+        List<T> missingObjects = new LinkedList<>();
+        for (T randomObject : randomObjects) {
+            Optional<T> savedObject = alreadyAdded ? Optional.<T>of(randomObject) : manager.add(randomObject);
+            assertOptionalIsPresent(savedObject);
+            missingObjects.add(savedObject.get());
+        }
 
-        iterator = manager.getAll().iterator();
-        assertTrue("Expected the iterator to have an item", iterator.hasNext());
-        T receivedObject = iterator.next();
-        assertTrue("First received item is not as expected.", receivedObject.equals(savedObject1.get()) || receivedObject.equals(savedObject2.get()));
-        receivedObject = iterator.next();
-        assertTrue("Second received item is not as expected.", receivedObject.equals(savedObject1.get()) || receivedObject.equals(savedObject2.get()));
+        Iterable<T> receivedObjects = manager.getAll();
+        for (T receivedObject : receivedObjects) {
+            missingObjects.remove(receivedObject);
+        }
+        assertTrue("There are "+missingObjects.size()+" objects that could not be matched with an object from the storage. " +
+                "This could be caused by an error in the equals method of the object or by a previous failed add operation of the object.",
+                missingObjects.isEmpty());
     }
 
     public static <T extends Identifiable> void add(BasicManager<T> manager, T randomObject) {

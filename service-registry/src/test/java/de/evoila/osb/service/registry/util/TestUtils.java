@@ -20,6 +20,7 @@ public class TestUtils {
     private static int definitionSerialNumber = 0;
     private static int organizationSerialNumber = 0;
     private static int spaceSerialNumber = 0;
+    private static int companySerialNumber = 0;
 
     public static CloudContext getRandomCloudContext() {
         return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomBasicAuthToken());
@@ -39,6 +40,10 @@ public class TestUtils {
 
     public static ServiceBroker getRandomServiceBroker() {
         return new ServiceBroker(getRandomUUID(), "127.0.0.1", 8080, getRandomBasicAuthToken(), "2.14", "random Description #" + random.nextInt(), random.nextBoolean(), random.nextBoolean());
+    }
+
+    public static Company getRandomCompany() {
+        return new Company(getRandomUUID(), "test-company-"+getNextCompanySerialNumber(), getRandomBasicAuthToken());
     }
 
     public static ServiceInstance getRandomServiceInstance() {
@@ -88,5 +93,6 @@ public class TestUtils {
     public static int getNextDefinitionSerialNumber() { return ++definitionSerialNumber; }
     public static int getNextOrganizationSerialNumber() { return ++organizationSerialNumber; }
     public static int getNextSpaceSerialNumber() { return ++spaceSerialNumber; }
+    public static int getNextCompanySerialNumber() { return ++companySerialNumber; }
 
 }

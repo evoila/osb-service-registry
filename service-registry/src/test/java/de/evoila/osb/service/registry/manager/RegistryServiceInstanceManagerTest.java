@@ -1,7 +1,7 @@
 package de.evoila.osb.service.registry.manager;
 
-import de.evoila.osb.service.registry.util.TestUtils;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
+import de.evoila.osb.service.registry.util.TestUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +10,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -33,7 +36,11 @@ public class RegistryServiceInstanceManagerTest {
 
     @Test
     public void getAll() {
-        ManagerTestService.<RegistryServiceInstance>getAll(manager, TestUtils.getRandomRegistryServiceInstance(), TestUtils.getRandomRegistryServiceInstance());
+        List<RegistryServiceInstance> instances = new LinkedList<>();
+        instances.add(TestUtils.getRandomRegistryServiceInstance());
+        instances.add(TestUtils.getRandomRegistryServiceInstance());
+        instances.add(TestUtils.getRandomRegistryServiceInstance());
+        ManagerTestService.<RegistryServiceInstance>getAll(manager, instances, false);
     }
 
     @Test

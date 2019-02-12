@@ -1,9 +1,10 @@
 package de.evoila.osb.service.registry.manager;
 
 import de.evoila.cf.broker.model.catalog.ServiceDefinition;
-import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
+import de.evoila.osb.service.registry.exceptions.InvalidFieldException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
+import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -60,7 +62,31 @@ public class ServiceBrokerManagerTest {
 
     @Test
     public void getServiceBrokers() {
-        ManagerTestService.<ServiceBroker>getAll(manager, TestUtils.getRandomServiceBroker(), TestUtils.getRandomServiceBroker());
+        List<ServiceBroker> serviceBrokers = new LinkedList<>();
+        serviceBrokers.add(TestUtils.getRandomServiceBroker());
+        serviceBrokers.add(TestUtils.getRandomServiceBroker());
+        serviceBrokers.add(TestUtils.getRandomServiceBroker());
+        ManagerTestService.<ServiceBroker>getAll(manager, serviceBrokers, false);
+    }
+
+    @Test
+    public void getServiceBrokerWithExistenceCheck() throws ResourceNotFoundException, InvalidFieldException {
+        ServiceBroker serviceBroker = manager.add(TestUtils.getRandomServiceBroker()).get();
+
+        ServiceBroker foundServiceBroker = manager.getServiceBrokerWithExistenceCheck(serviceBroker.getId());
+        assertTrue("Initial and found service broker are not the same.", serviceBroker.equals(foundServiceBroker));
+
+        try {
+            manager.getServiceBrokerWithExistenceCheck("###_invalid_id_###");
+            fail("Expected an InvalidFieldException when searching with an ID with forbidden special characters");
+        } catch (InvalidFieldException ex) {
+        }
+
+        try {
+            manager.getServiceBrokerWithExistenceCheck("nonExistingId");
+            fail("Expected an ResourceNotFoundException when searching with an ID that does not belong to any existing service broker.");
+        } catch (ResourceNotFoundException ex) {
+        }
     }
 
     @Test
@@ -107,22 +133,24 @@ public class ServiceBrokerManagerTest {
 
         ServiceBroker emptyServiceBroker = manager.add(TestUtils.getRandomServiceBroker()).get();
 
-        // Should throw a ResourceNotFoundException
-        ServiceBroker foundServiceBroker = manager.searchForServiceBrokerWithServiceInstanceId("nonExistingId");
+        // Supposed throw a ResourceNotFoundException
+        manager.searchForServiceBrokerWithServiceInstanceId("nonExistingId");
     }
 
     @Test(expected = ResourceNotFoundException.class)
     public void failServiceBrokerByServiceDefinitionSearch() throws ResourceNotFoundException {
         ServiceBroker serviceBroker = manager.add(TestUtils.getRandomServiceBroker()).get();
 
-        ServiceDefinition definiton1 = TestUtils.getRandomServiceDefinition(1);
-        ServiceDefinition definiton2 = TestUtils.getRandomServiceDefinition(1);
+        ServiceDefinition definition1 = TestUtils.getRandomServiceDefinition(1);
+        ServiceDefinition definition2 = TestUtils.getRandomServiceDefinition(1);
 
         List<ServiceDefinition> definitions = new LinkedList<>();
-        definitions.add(definiton1);
-        definitions.add(definiton2);
+        definitions.add(definition1);
+        definitions.add(definition2);
 
         cacheManager.put(serviceBroker.getId(), definitions);
+
+        // Expected to throw a ResourceNotFoundException
         manager.searchForServiceBrokerWithServiceDefinitionId("nonExistingDefinitionId");
     }
 
@@ -130,18 +158,18 @@ public class ServiceBrokerManagerTest {
     public void searchServiceBrokerByServiceDefinition() throws ResourceNotFoundException {
         ServiceBroker serviceBroker = manager.add(TestUtils.getRandomServiceBroker()).get();
 
-        ServiceDefinition definiton1 = TestUtils.getRandomServiceDefinition(1);
-        ServiceDefinition definiton2 = TestUtils.getRandomServiceDefinition(1);
+        ServiceDefinition definition1 = TestUtils.getRandomServiceDefinition(1);
+        ServiceDefinition definition2 = TestUtils.getRandomServiceDefinition(1);
 
         List<ServiceDefinition> definitions = new LinkedList<>();
-        definitions.add(definiton1);
-        definitions.add(definiton2);
+        definitions.add(definition1);
+        definitions.add(definition2);
 
         cacheManager.put(serviceBroker.getId(), definitions);
 
-        ServiceBroker foundServiceBroker = manager.searchForServiceBrokerWithServiceDefinitionId(definiton1.getId());
+        ServiceBroker foundServiceBroker = manager.searchForServiceBrokerWithServiceDefinitionId(definition1.getId());
         assertTrue("Initial and found service broker are not the same.", serviceBroker.equals(foundServiceBroker));
-        foundServiceBroker = manager.searchForServiceBrokerWithServiceDefinitionId(definiton2.getId());
+        foundServiceBroker = manager.searchForServiceBrokerWithServiceDefinitionId(definition2.getId());
         assertTrue("Initial and found service broker are not the same.", serviceBroker.equals(foundServiceBroker));
     }
 }
