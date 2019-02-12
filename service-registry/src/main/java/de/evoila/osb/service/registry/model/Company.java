@@ -28,7 +28,11 @@ public class Company implements Identifiable {
     private List<CloudContext> contexts;
 
     public Company() {
-        this("", "", "", new LinkedList<>());
+        this("", "", "");
+    }
+
+    public Company(String id, String name, String basicAuthToken) {
+        this(id, name, basicAuthToken, new LinkedList<>());
     }
 
     public Company(String id, String name, String basicAuthToken, List<CloudContext> contexts) {
