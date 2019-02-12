@@ -16,6 +16,10 @@ import java.util.*;
 public class TestUtils {
 
     private static Random random = new Random();
+    private static int planSerialNumber = 0;
+    private static int definitionSerialNumber = 0;
+    private static int organizationSerialNumber = 0;
+    private static int spaceSerialNumber = 0;
 
     public static CloudContext getRandomCloudContext() {
         return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomBasicAuthToken());
@@ -38,17 +42,23 @@ public class TestUtils {
     }
 
     public static ServiceInstance getRandomServiceInstance() {
-        return new ServiceInstance("test-id", "test-service-definition", "test-plan-id", "test-org-od", "test-space-id", new HashMap<String, Object>(), "http://dashboard.url");
+        ServiceDefinition definition = getRandomServiceDefinition(1);
+        Plan plan = definition.getPlans().get(0);
+        return new ServiceInstance(getRandomUUID(), "test-service-definition-"+getNextDefinitionSerialNumber(), plan.getName(),
+                "test-org-id-"+getNextOrganizationSerialNumber(),
+                "test-space-id-"+getNextSpaceSerialNumber(),
+                new HashMap<String, Object>(), "http://dashboard.url");
     }
 
-    public static ServiceDefinition getRandomServiceDefinition() {
+    public static ServiceDefinition getRandomServiceDefinition(int numberOfPlans) {
         List<Plan> plans = new LinkedList<>();
-        plans.add(getRandomPlan());
-        return new ServiceDefinition("test-definition-id", "test-definition-name", "test definition description", true, plans, true);
+        for (int i = 0; i < numberOfPlans; i++)
+            plans.add(getRandomPlan());
+        return new ServiceDefinition(getRandomUUID(), "test-definition-name-"+getNextDefinitionSerialNumber(), "test definition description", true, plans, true);
     }
 
     public static Plan getRandomPlan() {
-        return new Plan("test-plan-id", "test-plan-name", "test plan description", de.evoila.cf.broker.model.Platform.EXISTING_SERVICE, false);
+        return new Plan(getRandomUUID(), "test-plan-name-"+getNextPlanSerialNumber(), "test plan description", de.evoila.cf.broker.model.Platform.EXISTING_SERVICE, false);
     }
 
     public static RegistryServiceInstance getRandomRegistryServiceInstance() {
@@ -73,4 +83,10 @@ public class TestUtils {
     public static String getRandomUUID() {
         return UUID.randomUUID().toString();
     }
+
+    public static int getNextPlanSerialNumber() { return ++planSerialNumber; }
+    public static int getNextDefinitionSerialNumber() { return ++definitionSerialNumber; }
+    public static int getNextOrganizationSerialNumber() { return ++organizationSerialNumber; }
+    public static int getNextSpaceSerialNumber() { return ++spaceSerialNumber; }
+
 }

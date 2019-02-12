@@ -38,6 +38,17 @@ public class ServiceBrokerManagerTest {
     @Before
     @After
     public void dropAllServiceBrokers() {
+        Iterable<ServiceBroker> serviceBrokers = manager.getAll();
+        for (ServiceBroker serviceBroker: serviceBrokers) {
+            List<RegistryServiceInstance> instances = serviceBroker.getServiceInstances();
+            List<RegistryServiceInstance> toDelete = new LinkedList<>();
+            for (RegistryServiceInstance instance : instances) {
+                instance.setBroker(null);
+                toDelete.add(instance);
+            }
+            instances.removeAll(toDelete);
+            instanceManager.removeMultiple(toDelete);
+        }
         ManagerTestService.dropAll(manager);
     }
 
@@ -96,6 +107,7 @@ public class ServiceBrokerManagerTest {
 
         ServiceBroker emptyServiceBroker = manager.add(TestUtils.getRandomServiceBroker()).get();
 
+        // Should throw a ResourceNotFoundException
         ServiceBroker foundServiceBroker = manager.searchForServiceBrokerWithServiceInstanceId("nonExistingId");
     }
 
@@ -103,8 +115,8 @@ public class ServiceBrokerManagerTest {
     public void failServiceBrokerByServiceDefinitionSearch() throws ResourceNotFoundException {
         ServiceBroker serviceBroker = manager.add(TestUtils.getRandomServiceBroker()).get();
 
-        ServiceDefinition definiton1 = TestUtils.getRandomServiceDefinition();
-        ServiceDefinition definiton2 = TestUtils.getRandomServiceDefinition();
+        ServiceDefinition definiton1 = TestUtils.getRandomServiceDefinition(1);
+        ServiceDefinition definiton2 = TestUtils.getRandomServiceDefinition(1);
 
         List<ServiceDefinition> definitions = new LinkedList<>();
         definitions.add(definiton1);
@@ -118,8 +130,8 @@ public class ServiceBrokerManagerTest {
     public void searchServiceBrokerByServiceDefinition() throws ResourceNotFoundException {
         ServiceBroker serviceBroker = manager.add(TestUtils.getRandomServiceBroker()).get();
 
-        ServiceDefinition definiton1 = TestUtils.getRandomServiceDefinition();
-        ServiceDefinition definiton2 = TestUtils.getRandomServiceDefinition();
+        ServiceDefinition definiton1 = TestUtils.getRandomServiceDefinition(1);
+        ServiceDefinition definiton2 = TestUtils.getRandomServiceDefinition(1);
 
         List<ServiceDefinition> definitions = new LinkedList<>();
         definitions.add(definiton1);
