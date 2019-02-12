@@ -10,7 +10,7 @@ import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstan
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.model.service.broker.SharedContext;
 import de.evoila.osb.service.registry.web.controller.BaseController;
-import de.evoila.osb.service.registry.web.request.services.ShadowServiceInstanceRequestService;
+import de.evoila.osb.service.registry.web.request.services.ServiceInstanceRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -61,7 +61,7 @@ public class ShadowServiceInstanceController extends BaseController {
 
         ResponseWithHttpStatus<JobProgressResponse> response = null;
         try {
-            response = ShadowServiceInstanceRequestService.pollServiceInstance(sb, serviceInstance.getIdForServiceBroker(), apiVersion, queryParams);
+            response = ServiceInstanceRequestService.pollServiceInstance(sb, serviceInstance.getIdForServiceBroker(), apiVersion, queryParams);
         } catch (HttpClientErrorException ex) {
             if (ex.getStatusCode() != HttpStatus.GONE)
                 throw ex;
@@ -107,7 +107,7 @@ public class ShadowServiceInstanceController extends BaseController {
         log.info("Received shadow service broker service instance fetch request.");
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
         ServiceBroker serviceBroker = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId, HttpStatus.NOT_FOUND);
-        ResponseWithHttpStatus<ServiceInstance> response = ShadowServiceInstanceRequestService.fetchServiceInstance(serviceBroker, serviceInstance.getIdForServiceBroker(), apiVersion);
+        ResponseWithHttpStatus<ServiceInstance> response = ServiceInstanceRequestService.fetchServiceInstance(serviceBroker, serviceInstance.getIdForServiceBroker(), apiVersion);
         return new ResponseEntity<ServiceInstance>(response.getBody(), response.getStatus());
     }
 
@@ -128,7 +128,7 @@ public class ShadowServiceInstanceController extends BaseController {
 
         ResponseWithHttpStatus<ServiceInstanceResponse> response = null;
         try {
-            response = ShadowServiceInstanceRequestService.createServiceInstance(sb, serviceInstanceId, apiVersion, originatingIdentity, acceptsIncomplete, request);
+            response = ServiceInstanceRequestService.createServiceInstance(sb, serviceInstanceId, apiVersion, originatingIdentity, acceptsIncomplete, request);
         } catch (HttpClientErrorException ex) {
             log.error("Received a error when trying to provision an instance at the service broker " + sb.getHost(), ex);
             throw ex;
@@ -200,7 +200,7 @@ public class ShadowServiceInstanceController extends BaseController {
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId);
 
-        ResponseWithHttpStatus<ServiceInstanceUpdateResponse> response = ShadowServiceInstanceRequestService.updateServiceInstance(
+        ResponseWithHttpStatus<ServiceInstanceUpdateResponse> response = ServiceInstanceRequestService.updateServiceInstance(
                 sb, serviceInstance.getIdForServiceBroker(), apiVersion, originatingIdentity, acceptsIncomplete, request);
 
         return new ResponseEntity<>(response.getBody(), response.getStatus());
@@ -229,7 +229,7 @@ public class ShadowServiceInstanceController extends BaseController {
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceDefinitionId(serviceId);
         ResponseWithHttpStatus<String> response = null;
         try {
-            response = ShadowServiceInstanceRequestService.deleteServiceInstance(sb, serviceInstance.getIdForServiceBroker(), serviceId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
+            response = ServiceInstanceRequestService.deleteServiceInstance(sb, serviceInstance.getIdForServiceBroker(), serviceId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
         } catch (HttpClientErrorException ex) {
             log.error("Received a error when trying to delete an instance at the service broker " + sb.getHost(), ex);
             throw ex;

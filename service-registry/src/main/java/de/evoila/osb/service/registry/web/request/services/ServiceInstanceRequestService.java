@@ -16,9 +16,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Map;
 
 @Service
-public class ShadowServiceInstanceRequestService extends BaseRequestService {
+public class ServiceInstanceRequestService extends BaseRequestService {
 
-    private static Logger log = LoggerFactory.getLogger(ShadowServiceInstanceRequestService.class);
+    private static Logger log = LoggerFactory.getLogger(ServiceInstanceRequestService.class);
 
     public static ResponseWithHttpStatus<ServiceInstance> fetchServiceInstance(ServiceBroker serviceBroker, String serviceInstanceId, String apiHeader) throws HttpClientErrorException {
 

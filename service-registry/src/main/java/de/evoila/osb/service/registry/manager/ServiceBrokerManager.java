@@ -11,7 +11,7 @@ import de.evoila.osb.service.registry.properties.ServiceRegistryBean;
 import de.evoila.osb.service.registry.util.IdService;
 import de.evoila.osb.service.registry.web.AsyncCatalogUpdateTask;
 import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
-import de.evoila.osb.service.registry.web.request.services.ShadowServiceCatalogRequestService;
+import de.evoila.osb.service.registry.web.request.services.ServiceCatalogRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -138,7 +138,7 @@ public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
 
         log.info((forceUpdate ? "Force" : "Soft" )+ " updating service catalog for " + broker.getLoggingNameString());
         try {
-            ResponseWithHttpStatus<CatalogResponse> response = ShadowServiceCatalogRequestService.getCatalog(broker);
+            ResponseWithHttpStatus<CatalogResponse> response = ServiceCatalogRequestService.getCatalog(broker);
             if (response != null && response.getBody() != null && response.getBody().getServices() != null) {
                 log.debug("Caching received catalog for " + broker.getLoggingNameString());
                 cacheManager.put(broker.getId(), response.getBody().getServices());

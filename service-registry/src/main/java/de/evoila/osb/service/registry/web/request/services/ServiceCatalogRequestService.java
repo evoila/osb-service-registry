@@ -10,9 +10,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ShadowServiceCatalogRequestService extends BaseRequestService {
+public class ServiceCatalogRequestService extends BaseRequestService {
 
-    private static Logger log = LoggerFactory.getLogger(ShadowServiceCatalogRequestService.class);
+    private static Logger log = LoggerFactory.getLogger(ServiceCatalogRequestService.class);
 
     public static ResponseWithHttpStatus<CatalogResponse> getCatalog(ServiceBroker serviceBroker) {
         return getCatalog(serviceBroker, serviceBroker.getApiVersion());

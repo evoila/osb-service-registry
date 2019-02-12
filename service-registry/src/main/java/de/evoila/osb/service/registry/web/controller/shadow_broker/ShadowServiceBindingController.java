@@ -12,7 +12,7 @@ import de.evoila.osb.service.registry.model.service.broker.RegistryBinding;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.web.controller.BaseController;
-import de.evoila.osb.service.registry.web.request.services.ShadowServiceBindingRequestService;
+import de.evoila.osb.service.registry.web.request.services.ServiceBindingRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -57,7 +57,7 @@ public class ShadowServiceBindingController extends BaseController {
             throw new ResourceNotFoundException("binding", HttpStatus.BAD_REQUEST);
 
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId);
-        ResponseWithHttpStatus<ServiceInstanceBinding> response = ShadowServiceBindingRequestService.fetchServiceBinding(sb, serviceInstance.getIdForServiceBroker(), serviceBindingId, apiVersion);
+        ResponseWithHttpStatus<ServiceInstanceBinding> response = ServiceBindingRequestService.fetchServiceBinding(sb, serviceInstance.getIdForServiceBroker(), serviceBindingId, apiVersion);
 
         return new ResponseEntity<>(response.getBody(), response.getStatus());
     }
@@ -86,7 +86,7 @@ public class ShadowServiceBindingController extends BaseController {
 
         ResponseWithHttpStatus<JobProgressResponse> response = null;
         try {
-            response = ShadowServiceBindingRequestService.pollServiceBinding(sb, serviceInstance.getIdForServiceBroker(),
+            response = ServiceBindingRequestService.pollServiceBinding(sb, serviceInstance.getIdForServiceBroker(),
                     serviceBindingId, apiVersion, queryParams);
         } catch (HttpClientErrorException ex) {
             if (ex.getStatusCode() != HttpStatus.GONE)
@@ -145,7 +145,7 @@ public class ShadowServiceBindingController extends BaseController {
 
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId);
         log.debug("Using following service broker for the create binding request: " + sb.getLoggingNameString());
-        ResponseWithHttpStatus<ServiceInstanceBindingResponse> response = ShadowServiceBindingRequestService.createServiceBinding(sb,
+        ResponseWithHttpStatus<ServiceInstanceBindingResponse> response = ServiceBindingRequestService.createServiceBinding(sb,
                 serviceInstance.getIdForServiceBroker(), serviceBindingId, apiVersion, originatingIdentity, acceptsIncomplete, request);
         log.debug("Request to the service broker returned successful with code " + response.getStatus());
 
@@ -194,7 +194,7 @@ public class ShadowServiceBindingController extends BaseController {
         log.debug("Using following service broker for the delete binding request: " + sb.getLoggingNameString());
         ResponseWithHttpStatus<String> response = null;
         try {
-            response = ShadowServiceBindingRequestService.deleteBinding(sb, serviceInstance.getIdForServiceBroker(), serviceId, serviceBindingId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
+            response = ServiceBindingRequestService.deleteBinding(sb, serviceInstance.getIdForServiceBroker(), serviceId, serviceBindingId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
         } catch (HttpClientErrorException ex) {
             log.error("Received a error when trying to delete binding at the service broker " + sb.getLoggingNameString(), ex);
             throw ex;

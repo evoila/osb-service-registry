@@ -17,9 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
-public class ShadowServiceBindingRequestService extends BaseRequestService {
+public class ServiceBindingRequestService extends BaseRequestService {
 
-    private static Logger log = LoggerFactory.getLogger(ShadowServiceBindingRequestService.class);
+    private static Logger log = LoggerFactory.getLogger(ServiceBindingRequestService.class);
 
     public static ResponseWithHttpStatus<ServiceInstanceBindingResponse> createServiceBinding(
             ServiceBroker serviceBroker, String serviceInstanceId, String serviceBindingId,
