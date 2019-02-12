@@ -1,10 +1,7 @@
 package de.evoila.osb.service.registry.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.evoila.osb.service.registry.exceptions.InvalidFieldException;
-import de.evoila.osb.service.registry.exceptions.NotSharedException;
-import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
-import de.evoila.osb.service.registry.exceptions.SharedContextInvalidException;
+import de.evoila.osb.service.registry.exceptions.*;
 import de.evoila.osb.service.registry.web.bodies.ErrorResponse;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.slf4j.Logger;
@@ -116,6 +113,11 @@ public class BaseController {
     @ExceptionHandler(SharedContextInvalidException.class)
     public ResponseEntity<?> handleSharedContextInvalidException(SharedContextInvalidException ex, HttpServletResponse response) {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse(ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(InUseException.class)
+    public ResponseEntity<?> handleInUseException(InUseException ex, HttpServletResponse response) {
+        return new ResponseEntity<ErrorResponse>(new ErrorResponse(ex.getMessage()), HttpStatus.PRECONDITION_FAILED);
     }
 
     @ExceptionHandler(Exception.class)

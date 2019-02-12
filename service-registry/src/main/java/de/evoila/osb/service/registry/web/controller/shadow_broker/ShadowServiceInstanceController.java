@@ -1,6 +1,7 @@
 package de.evoila.osb.service.registry.web.controller.shadow_broker;
 
 import de.evoila.cf.broker.model.*;
+import de.evoila.osb.service.registry.exceptions.InUseException;
 import de.evoila.osb.service.registry.exceptions.NotSharedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.manager.*;
@@ -8,7 +9,6 @@ import de.evoila.osb.service.registry.model.ResponseWithHttpStatus;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.model.service.broker.SharedContext;
-import de.evoila.osb.service.registry.web.bodies.ErrorResponse;
 import de.evoila.osb.service.registry.web.controller.BaseController;
 import de.evoila.osb.service.registry.web.request.services.ShadowServiceInstanceRequestService;
 import org.slf4j.Logger;
@@ -219,7 +219,7 @@ public class ShadowServiceInstanceController extends BaseController {
 
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(instanceId);
         if (serviceInstance.getBindings().size() > 0)
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse("There are still active binding in existence. Unbind them before deprovisioning the service instance."), HttpStatus.PRECONDITION_FAILED);
+            throw new InUseException("There are still active binding in existence. Unbind them before deprovisioning the service instance.");
         if (!sharedInstancesManager.isTheOnlySharedInstance(serviceInstance)) {
             log.info("This service instance is not the only existing shared instance -> only deleting the registry entry");
             serviceInstanceManager.remove(serviceInstance);
