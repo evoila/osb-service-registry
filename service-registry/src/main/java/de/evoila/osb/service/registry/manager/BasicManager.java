@@ -53,8 +53,42 @@ public class BasicManager<T extends Identifiable> {
             repository.deleteById(id);
     }
 
+    public void removeMultiple(Iterable<? extends T> iterable) {
+        repository.deleteAll(iterable);
+    }
+
+    /**
+     * Also removes all weak entities or entities that should not exist without a relation, that are tied to this managers class T.
+     * ! Note: The BasicManager does not support cascading removals since its class T's structure is not known, therefore a regular {@linkplain #remove(Identifiable)} is performed.
+     * ! -> Classes that extend the BasicManager and have information about the class T's structure can implement this feature.
+     *
+     * @param t identifiable object to remove cascadingly
+     */
+    public void removeCascading(T t) {
+        remove(t);
+    }
+
+    /**
+     * Also removes all weak entities or entities that should not exist without a relation, that are tied to this managers class T.
+     * ! Note: The BasicManager does not support cascading removals since its class T's structure is not known, therefore a regular {@linkplain #remove(String)} is performed.
+     * ! -> Classes that extend the BasicManager and have information about the class T's structure can implement this feature.
+     * @param id id of the object to remove cascadingly
+     */
+    public void removeCascading(String id) {
+        remove(id);
+    }
+
     public void clear() {
         repository.deleteAll();
+    }
+
+    /**
+     * Also removes all weak entities or entities that should not exist without a relation, that are tied to this managers class T.
+     * ! Note: The BasicManager does not support cascading removals since its class T's structure is not known, therefore a regular {@linkplain #clear} is performed.
+     * ! -> Classes that extend the BasicManager and have information about the class T's structure can implement this feature.
+     */
+    public void clearCascading() {
+        clear();
     }
 
     public boolean exists(String id) {
