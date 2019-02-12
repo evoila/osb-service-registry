@@ -1,4 +1,4 @@
-package de.evoila.osb.service.registry.web.controller.shadow_broker;
+package de.evoila.osb.service.registry.web.controller.shadowbroker;
 
 import de.evoila.cf.broker.model.*;
 import de.evoila.osb.service.registry.exceptions.InUseException;

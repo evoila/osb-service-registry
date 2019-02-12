@@ -1,4 +1,4 @@
-package de.evoila.osb.service.registry.web.controller.service_broker;
+package de.evoila.osb.service.registry.web.controller.servicebroker;
 
 
 import de.evoila.cf.broker.model.catalog.ServiceDefinition;
