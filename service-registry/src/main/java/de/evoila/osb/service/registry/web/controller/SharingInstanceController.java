@@ -1,5 +1,7 @@
 package de.evoila.osb.service.registry.web.controller;
 
+import de.evoila.cf.broker.model.catalog.ServiceDefinition;
+import de.evoila.osb.service.registry.exceptions.InvalidFieldException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.manager.RegistryServiceInstanceManager;
 import de.evoila.osb.service.registry.manager.ServiceBrokerManager;
@@ -7,15 +9,17 @@ import de.evoila.osb.service.registry.manager.SharedInstancesManager;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.model.service.broker.SharedContext;
+import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
 import de.evoila.osb.service.registry.web.bodies.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class SharingInstanceController extends BaseController {
@@ -54,5 +58,30 @@ public class SharingInstanceController extends BaseController {
         instanceManager.update(serviceInstance);
 
         return new ResponseEntity<String>("", HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/brokers/{brokerId}/v2/catalog/shared")
+    public ResponseEntity<?> getSharedCatalogOfBroker(@PathVariable String brokerId) throws InvalidFieldException, ResourceNotFoundException {
+        log.info("Shared catalog request received for: " + brokerId);
+        ServiceBroker serviceBroker = sbManager.getServiceBrokerWithExistenceCheck(brokerId);
+
+        List<ServiceDefinition> services = new LinkedList<>();
+        Optional<ServiceDefinition> sharedDefinition = sharedInstancesManager.getSharedServiceDefinition(serviceBroker);
+        if (sharedDefinition.isPresent() && sharedDefinition.get().getPlans() != null && sharedDefinition.get().getPlans().size() > 0)
+            services.add(sharedDefinition.get());
+        log.info("Catalog prepared for: " + brokerId);
+        return new ResponseEntity<CatalogResponse>(new CatalogResponse(services), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/v2/catalog/shared")
+    public ResponseEntity<?> getSharedCatalog() {
+        log.info("Received shared instances catalog request.");
+        List<ServiceDefinition> definitions = new LinkedList<>();
+        ServiceDefinition sharedDefinition = sharedInstancesManager.getSharedServiceDefinition();
+        if (sharedDefinition.getPlans() != null && sharedDefinition.getPlans().size() > 0)
+            definitions.add(sharedDefinition);
+        CatalogResponse response = new CatalogResponse(definitions);
+        log.debug("Built new catalog response for shared instances: " + response.toString());
+        return new ResponseEntity<CatalogResponse>(response, HttpStatus.OK);
     }
 }
