@@ -225,7 +225,7 @@ public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
         while (iterator.hasNext()) {
             serviceBroker = iterator.next();
             if (serviceBroker.getServiceInstances() != null) {
-                if (serviceBroker.getServiceInstance(serviceInstanceId) != null) {
+                if (serviceBroker.getServiceInstance(serviceInstanceId).isPresent()) {
                     log.debug("Found following matching service broker for " + serviceInstanceId + " -> " + serviceBroker.getLoggingNameString());
                     return serviceBroker;
                 }

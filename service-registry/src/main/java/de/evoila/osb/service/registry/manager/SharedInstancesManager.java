@@ -6,10 +6,12 @@ import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.osb.service.registry.exceptions.NotSharedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
+import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SharedInstancesManager {
@@ -83,7 +85,7 @@ public class SharedInstancesManager {
         return getSharedServiceInstances(idAtServiceBroker).size() < 2;
     }
 
-    public ServiceDefinition getSharedServiceDefinition() {
+    public ServiceDefinition getEmptySharedServiceDefinition() {
         ServiceDefinition sharedDefinition = new ServiceDefinition();
         sharedDefinition.setId(SHARED_DEFINITIONS_ID);
         sharedDefinition.setName("shared-instances");
@@ -92,24 +94,44 @@ public class SharedInstancesManager {
         sharedDefinition.setInstancesRetrievable(false);
         sharedDefinition.setBindingsRetrievable(false);
         sharedDefinition.setPlans(new LinkedList<>());
-        addSharedInstancesAsPlan(sharedDefinition);
         return sharedDefinition;
     }
 
-    private void addSharedInstancesAsPlan(ServiceDefinition sharedDefinition) {
+    public ServiceDefinition getSharedServiceDefinition() {
+        ServiceDefinition sharedDefinition = getEmptySharedServiceDefinition();
+        addAllSharedInstancesAsPlan(sharedDefinition);
+        return sharedDefinition;
+    }
+
+    public Optional<ServiceDefinition> getSharedServiceDefinition(ServiceBroker serviceBroker) {
+        if (serviceBroker == null) return Optional.empty();
+        List<RegistryServiceInstance> instances = serviceBroker.getSharedServiceInstances();
+        ServiceDefinition sharedDefintion = getEmptySharedServiceDefinition();
+        addSharedInstancesAsPlan(sharedDefintion, instances);
+        return Optional.of(sharedDefintion);
+    }
+
+    private void addAllSharedInstancesAsPlan(ServiceDefinition sharedDefinition) {
         List<RegistryServiceInstance> sharedInstances = getSharedServiceInstances();
+        addSharedInstancesAsPlan(sharedDefinition, sharedInstances);
+    }
+
+    public void addSharedInstancesAsPlan(ServiceDefinition sharedDefinition, List<RegistryServiceInstance> instances) {
+        if (sharedDefinition == null || sharedDefinition.getPlans() == null || instances == null) return;
+
         List<Plan> plans = sharedDefinition.getPlans();
-        for (RegistryServiceInstance instance : sharedInstances) {
+        for (RegistryServiceInstance instance : instances) {
             Plan plan = new Plan();
             ServiceDefinition definition = cacheManager.getDefinition(instance.getBroker().getId()
                     , instance.isOriginalInstance() ? instance.getServiceDefinitionId() : instance.getSharedContext().getServiceDefinitionId());
             plan.setId(instance.getId());
-            plan.setName(definition == null ? "si-of-an-unknown-service" : "si-of-" + definition.getName());
+            plan.setName(definition == null ? "unknown-service-si-"+instance.getId().substring(0,5) : definition.getName()+"-si-"+instance.getId().substring(0,5));
             plan.setDescription("Org: " + instance.getOrganizationGuid() + ", Space: " + instance.getSpaceGuid());
             plan.setFree(false);
             plan.setPlatform(Platform.EXISTING_SERVICE);
 
             plans.add(plan);
         }
+
     }
 }

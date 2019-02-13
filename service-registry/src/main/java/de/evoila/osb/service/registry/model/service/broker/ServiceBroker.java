@@ -11,6 +11,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import javax.persistence.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "service_broker")
@@ -130,19 +131,31 @@ public class ServiceBroker implements Identifiable {
 
     public synchronized void setSites(List<CloudSite> sites) { this.sites = sites == null ? new LinkedList<>() : sites; }
 
-    public List<RegistryServiceInstance> getServiceInstances() { return serviceInstances; }
+    public synchronized List<RegistryServiceInstance> getServiceInstances() { return serviceInstances; }
 
     public synchronized void setServiceInstances(List<RegistryServiceInstance> serviceInstances) {
         this.serviceInstances = serviceInstances == null ? new LinkedList<>() : serviceInstances;
     }
 
     @JsonIgnore
-    public synchronized RegistryServiceInstance getServiceInstance(String serviceInstanceId) {
+    public synchronized Optional<RegistryServiceInstance> getServiceInstance(String serviceInstanceId) {
         for (RegistryServiceInstance instance : serviceInstances) {
             if (serviceInstanceId.equals(instance.getId()))
-                return instance;
+                return Optional.of(instance);
         }
-        return null;
+        return Optional.empty();
+    }
+
+    @JsonIgnore
+    public synchronized List<RegistryServiceInstance> getSharedServiceInstances() {
+        List<RegistryServiceInstance> sharedInstances = new LinkedList<>();
+        if (serviceInstances == null) return sharedInstances;
+
+        for (RegistryServiceInstance serviceInstance: serviceInstances) {
+            if (serviceInstance.isShared())
+                sharedInstances.add(serviceInstance);
+        }
+        return sharedInstances;
     }
 
     @Override

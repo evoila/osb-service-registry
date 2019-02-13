@@ -39,7 +39,7 @@ public class SharingInstanceController extends BaseController {
         log.info("Received sharing managing request");
 
         ServiceBroker serviceBroker = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId, HttpStatus.NOT_FOUND);
-        RegistryServiceInstance serviceInstance = serviceBroker.getServiceInstance(serviceInstanceId);
+        RegistryServiceInstance serviceInstance = serviceBroker.getServiceInstance(serviceInstanceId).get();
         SharedContext sharedContext = serviceInstance.getSharedContext();
         if (sharing) {
             log.info("Initiating shared context for " + serviceInstance.getId());
