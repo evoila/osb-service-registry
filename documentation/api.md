@@ -40,6 +40,8 @@ To toggle sharing for an existing service instance use the following endpoint:
 `PATCH /service_instance/{instance_id}/shareable`
 To set the shared status a query parameter named `sharing` (defaults to false) is needed as following:
 `PATCH /service_instance/{instance_id}/shareable?sharing=[true/false]`
+To set the display name of the shared instance a query parameter named `displayname` can be used as following:
+`PATCH /service_instance/{instance_id}/shareable?sharing=[true/false]&displayname=my-service-instance`
 
 Service Instances that are shared will occur in the dedicated shared instances service definition of the Shadow Service Broker and can not be unshared while other service instances refer to the same physical instance.
 
