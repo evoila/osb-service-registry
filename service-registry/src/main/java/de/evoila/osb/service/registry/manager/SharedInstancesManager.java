@@ -122,11 +122,9 @@ public class SharedInstancesManager {
         List<Plan> plans = sharedDefinition.getPlans();
         for (RegistryServiceInstance instance : instances) {
             Plan plan = new Plan();
-            ServiceDefinition definition = cacheManager.getDefinition(instance.getBroker().getId()
-                    , instance.isOriginalInstance() ? instance.getServiceDefinitionId() : instance.getSharedContext().getServiceDefinitionId());
             plan.setId(instance.getId());
-            plan.setName(definition == null ? "unknown-service-si-"+instance.getId().substring(0,5) : definition.getName()+"-si-"+instance.getId().substring(0,5));
-            plan.setDescription("Org: " + instance.getOrganizationGuid() + ", Space: " + instance.getSpaceGuid());
+            plan.setName( "si-" + instance.getSharedContext().getDisplayNameOrDefaultName());
+            plan.setDescription(instance.getSharedContext().getDescription());
             plan.setFree(false);
             plan.setPlatform(Platform.EXISTING_SERVICE);
 

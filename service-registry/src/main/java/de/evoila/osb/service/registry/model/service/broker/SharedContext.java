@@ -1,5 +1,7 @@
 package de.evoila.osb.service.registry.model.service.broker;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.evoila.cf.broker.model.catalog.ServiceDefinition;
 import de.evoila.osb.service.registry.exceptions.SharedContextInvalidException;
 import de.evoila.osb.service.registry.manager.Identifiable;
 import org.hibernate.annotations.GenericGenerator;
@@ -20,6 +22,8 @@ public class SharedContext implements Identifiable {
     private String organization;
     private String space;
     private String nameSpace;
+    private String displayName;
+    private String description;
 
     private boolean shared;
 
@@ -28,37 +32,39 @@ public class SharedContext implements Identifiable {
     private RegistryServiceInstance serviceInstance;
 
     public SharedContext() {
-        this("", false, "", "", "", "", "", "");
+        this("", "", "", "", "", "", "", "", "", false);
     }
 
     public SharedContext(SharedContext other) {
-        this("", other.isShared(), other.getServiceInstanceId()
+        this("", other.getServiceInstanceId()
                 , other.getServiceDefinitionId(), other.getPlanId(), other.getOrganization(), other.getSpace()
-                , other.getNameSpace(), null);
+                , other.getNameSpace(), other.getDisplayName(), other.getDescription(), other.isShared(), null);
     }
 
-    public SharedContext(String id, boolean shared, String serviceInstanceId, String serviceDefinitionId, String planId, String organization, String space, String nameSpace) {
-        this(id, shared, serviceInstanceId, serviceDefinitionId, planId, organization, space, nameSpace, null);
+    public SharedContext(String id, String serviceInstanceId, String serviceDefinitionId, String planId, String organization, String space, String nameSpace, String displayName, String description, boolean shared) {
+        this(id, serviceInstanceId, serviceDefinitionId, planId, organization, space, nameSpace, displayName, description, shared, null);
     }
 
-    public SharedContext(String id, boolean shared, String serviceInstanceId, String serviceDefinitionId, String planId, String organization, String space, String nameSpace, RegistryServiceInstance serviceInstance) {
+    public SharedContext(String id, String serviceInstanceId, String serviceDefinitionId, String planId, String organization, String space, String nameSpace, String displayName, String description, boolean shared, RegistryServiceInstance serviceInstance) {
         this.id = id;
-        this.shared = shared;
         this.serviceInstanceId = serviceInstanceId;
         this.serviceDefinitionId = serviceDefinitionId;
         this.planId = planId;
         this.organization = organization;
         this.space = space;
         this.nameSpace = nameSpace;
+        this.displayName = displayName;
+        this.description = description;
+        this.shared = shared;
         this.serviceInstance = serviceInstance;
     }
 
     /**
-     * Calls {@linkplain #initShared(RegistryServiceInstance)} with its {@linkplain #serviceInstance}
+     * Calls {@linkplain #initShared(RegistryServiceInstance, ServiceDefinition)} with its {@linkplain #serviceInstance}
      */
-    public void initShared() {
+    public void initShared(ServiceDefinition definition) {
         if (serviceInstance != null)
-            initShared(serviceInstance);
+            initShared(serviceInstance, definition);
     }
 
     /**
@@ -73,18 +79,24 @@ public class SharedContext implements Identifiable {
      *     <li>organization</li>
      *     <li>space</li>
      *     <li>nameSpace</li>
+     *     <li>description</li>
      * </ul>
-     *
-     * @param serviceInstance service instance to get the information from
+     * @param serviceInstance
+     * @param definition
      */
-    public void initShared(RegistryServiceInstance serviceInstance) {
+    public void initShared(RegistryServiceInstance serviceInstance, ServiceDefinition definition) {
         shared = true;
-        serviceInstanceId = serviceInstanceId == null || serviceInstanceId.isEmpty() ? serviceInstance.getId() : serviceInstanceId;
-        serviceDefinitionId = serviceDefinitionId == null || serviceDefinitionId.isEmpty() ? serviceInstance.getServiceDefinitionId() : serviceDefinitionId;
-        planId = planId == null || planId.isEmpty() ? serviceInstance.getPlanId() : planId;
-        organization = organization == null || organization.isEmpty() ? serviceInstance.getOrganizationGuid() : organization;
-        space = space == null || space.isEmpty() ? serviceInstance.getSpaceGuid() : space;
-        nameSpace = nameSpace == null || nameSpace.isEmpty() ? serviceInstance.getNameSpace() : nameSpace;
+        if (serviceInstanceId == null || serviceInstanceId.isEmpty()) serviceInstanceId = serviceInstance.getId();
+        if (serviceDefinitionId == null || serviceDefinitionId.isEmpty()) serviceDefinitionId = serviceInstance.getServiceDefinitionId();
+        if (planId == null || planId.isEmpty()) planId = serviceInstance.getPlanId();
+        if (organization == null || organization.isEmpty()) organization = serviceInstance.getOrganizationGuid();
+        if (space == null || space.isEmpty()) space = serviceInstance.getSpaceGuid();
+        if (nameSpace == null || nameSpace.isEmpty()) nameSpace = serviceInstance.getNameSpace();
+        if (description == null || description.isEmpty())
+            description = "Definition: " + (definition == null ? "unknown-service" : definition.getName())
+                    + ", Org: " + organization
+                    + ", Space: " + space
+                    + ", Namespace: " + nameSpace;
     }
 
     /**
@@ -141,6 +153,19 @@ public class SharedContext implements Identifiable {
 
     public void setNameSpace(String nameSpace) { this.nameSpace = nameSpace; }
 
+    public String getDisplayName() { return displayName; }
+
+    public boolean hasEmptyDisplayName() { return displayName == null || displayName.isEmpty(); }
+
+    @JsonIgnore
+    public String getDisplayNameOrDefaultName() { return hasEmptyDisplayName() ? serviceInstanceId.substring(0,13) : displayName; }
+
+    public void setDisplayName(String displayName) { this.displayName = displayName; }
+
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
+
     public RegistryServiceInstance getServiceInstance() { return serviceInstance; }
 
     public void setServiceInstance(RegistryServiceInstance serviceInstance) { this.serviceInstance = serviceInstance; }
@@ -161,6 +186,8 @@ public class SharedContext implements Identifiable {
         if (planId != null ? !planId.equals(that.planId) : that.planId != null) return false;
         if (organization != null ? !organization.equals(that.organization) : that.organization != null) return false;
         if (space != null ? !space.equals(that.space) : that.space != null) return false;
+        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
+        if (description != null ? !description.equals(that.description) : that.description != null) return false;
         return nameSpace != null ? nameSpace.equals(that.nameSpace) : that.nameSpace == null;
     }
 
@@ -174,6 +201,8 @@ public class SharedContext implements Identifiable {
         result = 31 * result + (organization != null ? organization.hashCode() : 0);
         result = 31 * result + (space != null ? space.hashCode() : 0);
         result = 31 * result + (nameSpace != null ? nameSpace.hashCode() : 0);
+        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
 }

@@ -5,6 +5,7 @@ import de.evoila.osb.service.registry.exceptions.InvalidFieldException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.manager.RegistryServiceInstanceManager;
 import de.evoila.osb.service.registry.manager.ServiceBrokerManager;
+import de.evoila.osb.service.registry.manager.ServiceDefinitionCacheManager;
 import de.evoila.osb.service.registry.manager.SharedInstancesManager;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
@@ -29,25 +30,34 @@ public class SharingInstanceController extends BaseController {
     private ServiceBrokerManager sbManager;
     private RegistryServiceInstanceManager instanceManager;
     private SharedInstancesManager sharedInstancesManager;
+    private ServiceDefinitionCacheManager cacheManager;
 
-    public SharingInstanceController(ServiceBrokerManager sbManager, RegistryServiceInstanceManager instanceManager, SharedInstancesManager sharedInstancesManager) {
+    public SharingInstanceController(ServiceBrokerManager sbManager, RegistryServiceInstanceManager instanceManager, SharedInstancesManager sharedInstancesManager, ServiceDefinitionCacheManager cacheManager) {
         this.sbManager = sbManager;
         this.instanceManager = instanceManager;
         this.sharedInstancesManager = sharedInstancesManager;
+        this.cacheManager = cacheManager;
     }
 
     @PatchMapping(value = "/service_instance/{instanceId}/shareable")
     public ResponseEntity<?> shareable(
             @PathVariable("instanceId") String serviceInstanceId,
-            @RequestParam(value = "sharing", defaultValue = "false") boolean sharing) throws ResourceNotFoundException {
+            @RequestParam(value = "sharing", defaultValue = "false") boolean sharing,
+            @RequestParam(value = "displayname", defaultValue = "") String displayName) throws ResourceNotFoundException {
         log.info("Received sharing managing request");
 
         ServiceBroker serviceBroker = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId, HttpStatus.NOT_FOUND);
         RegistryServiceInstance serviceInstance = serviceBroker.getServiceInstance(serviceInstanceId).get();
+        ServiceDefinition definition = cacheManager.getDefinition(serviceInstance.getBroker().getId()
+                , serviceInstance.isOriginalInstance() ? serviceInstance.getServiceDefinitionId() : serviceInstance.getSharedContext().getServiceDefinitionId());
+
         SharedContext sharedContext = serviceInstance.getSharedContext();
+        if (sharedContext == null) sharedContext = new SharedContext();
+
         if (sharing) {
             log.info("Initiating shared context for " + serviceInstance.getId());
-            sharedContext.initShared();
+            sharedContext.initShared(definition);
+            if (displayName != null && !displayName.isEmpty()) sharedContext.setDisplayName(displayName);
         } else {
             if (!sharedInstancesManager.isTheOnlySharedInstance(serviceInstance))
                 return new ResponseEntity<ErrorResponse>(new ErrorResponse("There are still other service instances referring to this instance, therefor it can not be unshared."), HttpStatus.BAD_REQUEST);
