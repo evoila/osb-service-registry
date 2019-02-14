@@ -21,6 +21,7 @@ public class TestUtils {
     private static int organizationSerialNumber = 0;
     private static int spaceSerialNumber = 0;
     private static int companySerialNumber = 0;
+    private static int siteSerialNumber = 0;
 
     public static CloudContext getRandomCloudContext() {
         return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomBasicAuthToken());
@@ -31,11 +32,11 @@ public class TestUtils {
     }
 
     public static CloudSite getRandomCloudSite() {
-        return new CloudSite(getRandomUUID(), Platform.cloudfoundry, "127.0.0.1");
+        return new CloudSite(getRandomUUID(), Platform.cloudfoundry, "127.0.0.1", "test-cloud-site-"+getNextSiteSerialNumber());
     }
 
     public static CloudSite getRandomCloudSite(List<CloudContext> contexts, List<ServiceBroker> serviceBrokers) {
-        return new CloudSite(getRandomUUID(), Platform.cloudfoundry, "127.0.0.1", contexts, serviceBrokers);
+        return new CloudSite(getRandomUUID(), Platform.cloudfoundry, "127.0.0.1", "test-cloud-site-"+getNextSiteSerialNumber(), contexts, serviceBrokers);
     }
 
     public static ServiceBroker getRandomServiceBroker() {
@@ -94,5 +95,6 @@ public class TestUtils {
     public static int getNextOrganizationSerialNumber() { return ++organizationSerialNumber; }
     public static int getNextSpaceSerialNumber() { return ++spaceSerialNumber; }
     public static int getNextCompanySerialNumber() { return ++companySerialNumber; }
+    public static int getNextSiteSerialNumber() { return ++siteSerialNumber; }
 
 }

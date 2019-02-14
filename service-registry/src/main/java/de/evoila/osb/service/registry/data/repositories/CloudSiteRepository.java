@@ -5,4 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface CloudSiteRepository extends CrudRepository<CloudSite, String> {
 
+    public CloudSite findByHost(String host);
 }

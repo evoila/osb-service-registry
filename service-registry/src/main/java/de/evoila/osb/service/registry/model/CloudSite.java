@@ -23,6 +23,7 @@ public class CloudSite implements Identifiable {
 
     private Platform platform;
     private String host;
+    private String displayName;
 
     @OneToMany(mappedBy = "site", cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -40,17 +41,18 @@ public class CloudSite implements Identifiable {
     private List<ServiceBroker> brokers;
 
     public CloudSite() {
-        this("", Platform.unknown, "");
+        this("", Platform.unknown, "", "");
     }
 
-    public CloudSite(String id, Platform platform, String host) {
-        this(id, platform, host, new LinkedList<>(), new LinkedList<>());
+    public CloudSite(String id, Platform platform, String host, String displayName) {
+        this(id, platform, host, displayName, new LinkedList<>(), new LinkedList<>());
     }
 
-    public CloudSite(String id, Platform platform, String host, List<CloudContext> contexts, List<ServiceBroker> brokers) {
+    public CloudSite(String id, Platform platform, String host, String displayName, List<CloudContext> contexts, List<ServiceBroker> brokers) {
         this.id = id;
         this.platform = platform;
         this.host = host;
+        this.displayName = displayName;
         this.contexts = contexts;
         this.brokers = brokers;
     }
@@ -79,6 +81,10 @@ public class CloudSite implements Identifiable {
     public void setHost(String host) {
         this.host = host;
     }
+
+    public String getDisplayName() { return displayName; }
+
+    public void setDisplayName(String displayName) { this.displayName = displayName; }
 
     public List<CloudContext> getContexts() {
         return contexts;
@@ -118,6 +124,7 @@ public class CloudSite implements Identifiable {
         if (id != null ? !id.equals(site.id) : site.id != null) return false;
         if (platform != site.platform) return false;
         if (host != null ? !host.equals(site.host) : site.host != null) return false;
+        if (displayName != null ? !displayName.equals(site.displayName) : site.displayName != null) return false;
         if (contexts != null ? contexts.size() != site.contexts.size() : site.contexts != null) return false;
         return brokers != null ? brokers.size() == site.brokers.size() : site.brokers == null;
     }
@@ -127,6 +134,7 @@ public class CloudSite implements Identifiable {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (platform != null ? platform.hashCode() : 0);
         result = 31 * result + (host != null ? host.hashCode() : 0);
+        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
         return result;
     }
 
@@ -136,6 +144,7 @@ public class CloudSite implements Identifiable {
                 "id='" + id + '\'' +
                 ", platform=" + platform +
                 ", host='" + host + '\'' +
+                ", displayName='" + displayName + '\'' +
                 ", contexts[" + contexts.size() + "]" +
                 ", brokers[" + brokers.size() + "]" +
                 '}';
