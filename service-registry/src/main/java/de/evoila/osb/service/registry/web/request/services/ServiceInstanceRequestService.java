@@ -4,6 +4,8 @@ import de.evoila.cf.broker.model.*;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.ResponseWithHttpStatus;
+import de.evoila.osb.service.registry.model.service.broker.update.ServiceInstanceUpdateRequest;
+import de.evoila.osb.service.registry.model.service.broker.update.ServiceInstanceUpdateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;

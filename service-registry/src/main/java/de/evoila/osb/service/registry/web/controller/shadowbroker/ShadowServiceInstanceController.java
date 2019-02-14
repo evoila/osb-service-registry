@@ -9,6 +9,8 @@ import de.evoila.osb.service.registry.model.ResponseWithHttpStatus;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.model.service.broker.SharedContext;
+import de.evoila.osb.service.registry.model.service.broker.update.ServiceInstanceUpdateRequest;
+import de.evoila.osb.service.registry.model.service.broker.update.ServiceInstanceUpdateResponse;
 import de.evoila.osb.service.registry.web.controller.BaseController;
 import de.evoila.osb.service.registry.web.request.services.ServiceInstanceRequestService;
 import org.slf4j.Logger;
