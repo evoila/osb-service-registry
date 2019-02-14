@@ -158,7 +158,9 @@ public class SharedContext implements Identifiable {
     public boolean hasEmptyDisplayName() { return displayName == null || displayName.isEmpty(); }
 
     @JsonIgnore
-    public String getDisplayNameOrDefaultName() { return hasEmptyDisplayName() ? serviceInstanceId.substring(0,13) : displayName; }
+    public String getDisplayNameOrDefaultName() {
+        return hasEmptyDisplayName() ? serviceInstanceId.substring(0, Math.min(serviceInstanceId.length(), 13)) : displayName;
+    }
 
     public void setDisplayName(String displayName) { this.displayName = displayName; }
 
