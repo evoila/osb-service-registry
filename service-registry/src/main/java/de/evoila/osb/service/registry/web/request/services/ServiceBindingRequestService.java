@@ -30,7 +30,7 @@ public class ServiceBindingRequestService extends BaseRequestService {
         String url = serviceBroker.getHostWithPort() + "/v2/service_instances/" + serviceInstanceId + "/service_bindings/" + serviceBindingId;
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("accepts_incomplete", accepts_incomplete);
-        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiHeader));
         HttpEntity<ServiceInstanceBindingRequest> entity = new HttpEntity<>(request, headers);
         log.info("Sending create binding request to " + url);
         return makeRequest(builder.build().toUriString(), HttpMethod.PUT, entity, ServiceInstanceBindingResponse.class);
@@ -46,7 +46,7 @@ public class ServiceBindingRequestService extends BaseRequestService {
                 .queryParam("service_id", serviceDefinitionId)
                 .queryParam("plan_id", planId)
                 .queryParam("accepts_incomplete", accepts_incomplete);
-        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiHeader));
         HttpEntity entity = new HttpEntity(headers);
         log.info("Sending delete binding request to " + url);
         return makeRequest(builder.build().toUriString(), HttpMethod.DELETE, entity, String.class);
@@ -62,7 +62,7 @@ public class ServiceBindingRequestService extends BaseRequestService {
                 builder.queryParam(entry.getKey(), entry.getValue());
             }
         }
-        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiHeader));
         log.info("Sending service binding last operation request to " + url);
         return makeRequest(builder.build().toUriString(), HttpMethod.GET, entity, JobProgressResponse.class);
     }
@@ -70,7 +70,7 @@ public class ServiceBindingRequestService extends BaseRequestService {
     public static ResponseWithHttpStatus<ServiceInstanceBinding> fetchServiceBinding(ServiceBroker serviceBroker, String serviceInstanceId, String serviceBinding,
                                                                                      String apiHeader) {
         String url = serviceBroker.getHostWithPort() + "/v2/service_instances/" + serviceInstanceId + "/service_bindings/" + serviceBinding;
-        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiHeader));
         log.info("Sending service binding fetch request to " + url);
         return makeRequest(url, HttpMethod.GET, entity, ServiceInstanceBinding.class);
     }

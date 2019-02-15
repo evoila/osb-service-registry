@@ -3,6 +3,8 @@ registry:
   update_thread_number: 15
   timeout_connection: 10000
   timeout_read: 20000
+  ## Length of 16 needed
+  encryptionKey: exampleKeyExampl
 
 ## Spring parameters ##
 spring:

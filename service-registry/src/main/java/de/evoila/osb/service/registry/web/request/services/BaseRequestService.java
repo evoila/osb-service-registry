@@ -1,6 +1,7 @@
 package de.evoila.osb.service.registry.web.request.services;
 
 import de.evoila.osb.service.registry.model.ResponseWithHttpStatus;
+import de.evoila.osb.service.registry.util.Cryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -19,6 +20,7 @@ public class BaseRequestService {
     private static int readTimeout;
 
     private static RestTemplate restTemplate;
+    private static Cryptor cryptor;
 
     public static int getConnectionTimeout() { return connectionTimeout; }
 
@@ -41,11 +43,19 @@ public class BaseRequestService {
         return restTemplate;
     }
 
-    public static HttpHeaders createBasicHeaders(String basicAuthToken, String apiVersion) {
+    public static HttpHeaders createBasicHeaders(String encryptedBasicAuthToken, String salt, String apiVersion) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic " + basicAuthToken);
         headers.add("X-Broker-API-Version", apiVersion);
         headers.add("Content-type", "application/json");
+
+        // Needs an initialized cryptor object. This is done in the Cryptor constructor.
+        if (cryptor == null || !cryptor.isInitialized()) {
+            log.error("Cryptor object in the BaseRequestService is NOT initialized, therefore no decryption of the basic auth token can be done. -> Will not add a authorization header.");
+        } else {
+            String basicAuthToken = cryptor.decrypt(salt, encryptedBasicAuthToken);
+            headers.add("Authorization", "Basic " + basicAuthToken);
+        }
+
         return headers;
     }
 
@@ -62,5 +72,13 @@ public class BaseRequestService {
 
     public static <T> ResponseWithHttpStatus<T> makeRequest(String url, HttpMethod method, HttpEntity<?> entity, Class<T> responseClass) throws HttpClientErrorException {
         return makeRequest(getRestTemplate(), url, method, entity, responseClass);
+    }
+
+    public static Cryptor getCryptor() {
+        return cryptor;
+    }
+
+    public static void setCryptor(Cryptor cryptor) {
+        BaseRequestService.cryptor = cryptor;
     }
 }

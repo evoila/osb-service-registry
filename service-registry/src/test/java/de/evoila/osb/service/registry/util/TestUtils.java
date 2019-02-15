@@ -40,7 +40,7 @@ public class TestUtils {
     }
 
     public static ServiceBroker getRandomServiceBroker() {
-        return new ServiceBroker(getRandomUUID(), "127.0.0.1", 8080, getRandomBasicAuthToken(), "2.14", "random Description #" + random.nextInt(), random.nextBoolean(), random.nextBoolean());
+        return new ServiceBroker(getRandomUUID(), "127.0.0.1", 8080, "test-salt", getRandomBasicAuthToken(), "2.14", "random Description #" + random.nextInt(), random.nextBoolean(), random.nextBoolean());
     }
 
     public static Company getRandomCompany() {
@@ -76,7 +76,7 @@ public class TestUtils {
     }
 
     public static String getRandomBasicAuthToken() {
-        return "Basic " + getRandomLowercaseString(24);
+        return getRandomLowercaseString(24);
     }
 
     public static String getRandomLowercaseString(int length) {

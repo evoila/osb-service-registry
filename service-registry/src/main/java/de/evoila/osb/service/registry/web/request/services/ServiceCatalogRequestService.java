@@ -21,7 +21,7 @@ public class ServiceCatalogRequestService extends BaseRequestService {
     public static ResponseWithHttpStatus<CatalogResponse> getCatalog(ServiceBroker serviceBroker, String apiVersion) {
 
         String url = serviceBroker.getHostWithPort() + "/v2/catalog";
-        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getBasicAuthToken(), apiVersion));
+        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiVersion));
 
         log.info("Sending catalog request to " + url);
         return makeRequest(url, HttpMethod.GET, entity, CatalogResponse.class);

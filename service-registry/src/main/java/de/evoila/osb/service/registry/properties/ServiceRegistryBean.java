@@ -19,13 +19,17 @@ public class ServiceRegistryBean {
     @Min(100)
     private int timeoutRead;
 
+    @Min(16)
+    private char[] encryptionKey;
+
     public ServiceRegistryBean() {
     }
 
-    public ServiceRegistryBean(@Min(1) int updateThreadNumber, @Min(100) int timeoutConnection, @Min(100) int timeoutRead) {
+    public ServiceRegistryBean(@Min(1) int updateThreadNumber, @Min(100) int timeoutConnection, @Min(100) int timeoutRead, @Min(16) char[] encryptionKey) {
         this.updateThreadNumber = updateThreadNumber;
         this.timeoutConnection = timeoutConnection;
         this.timeoutRead = timeoutRead;
+        this.encryptionKey = encryptionKey;
     }
 
     /**
@@ -50,4 +54,8 @@ public class ServiceRegistryBean {
     public int getTimeoutRead() { return timeoutRead; }
 
     public void setTimeoutRead(int timeoutRead) { this.timeoutRead = timeoutRead; }
+
+    public char[] getEncryptionKey() { return encryptionKey; }
+
+    public void setEncryptionKey(char[] encryptionKey) { this.encryptionKey = encryptionKey; }
 }

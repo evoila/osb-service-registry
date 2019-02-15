@@ -4,6 +4,7 @@ package de.evoila.osb.service.registry.model.service.broker;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.evoila.osb.service.registry.manager.Identifiable;
 import de.evoila.osb.service.registry.model.CloudSite;
+import de.evoila.osb.service.registry.web.bodies.ServiceBrokerCreate;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -25,7 +26,8 @@ public class ServiceBroker implements Identifiable {
     private String host;
     private int port;
 
-    private String basicAuthToken;
+    private String salt;
+    private String encryptedBasicAuthToken;
     private String apiVersion;
     private String description;
 
@@ -41,26 +43,41 @@ public class ServiceBroker implements Identifiable {
     private List<RegistryServiceInstance> serviceInstances;
 
     public ServiceBroker() {
-        this("", "", 0, "", "", "", false, false);
+        this("", "", 0, "", "", "", "", false, false);
     }
 
-    public ServiceBroker(String id, String host, int port, String basicAuthToken, String apiVersion, String description, boolean cfAllowed, boolean k8Allowed) {
-        this(id, host, port, basicAuthToken, apiVersion, description, cfAllowed, k8Allowed, new LinkedList<CloudSite>(), new LinkedList<RegistryServiceInstance>());
+    public ServiceBroker(ServiceBrokerCreate create) {
+        this();
+        updateBasicFields(create);
     }
 
-    public ServiceBroker(String id, String host, int port, String basicAuthToken, String apiVersion,
+    public ServiceBroker(String id, String host, int port, String salt, String encryptedBasicAuthToken, String apiVersion, String description, boolean cfAllowed, boolean k8Allowed) {
+        this(id, host, port, salt, encryptedBasicAuthToken, apiVersion, description, cfAllowed, k8Allowed, new LinkedList<CloudSite>(), new LinkedList<RegistryServiceInstance>());
+    }
+
+    public ServiceBroker(String id, String host, int port, String salt, String encryptedBasicAuthToken, String apiVersion,
                          String description, boolean cloudFoundryAllowed, boolean kubernetesAllowed,
                          List<CloudSite> sites, List<RegistryServiceInstance> serviceInstances) {
         this.id = id;
         this.host = host;
         this.port = port;
-        this.basicAuthToken = basicAuthToken;
+        this.salt = salt;
+        this.encryptedBasicAuthToken = encryptedBasicAuthToken;
         this.apiVersion = apiVersion;
         this.description = description;
         this.cloudFoundryAllowed = cloudFoundryAllowed;
         this.kubernetesAllowed = kubernetesAllowed;
         this.sites = sites == null ? new LinkedList<>() : sites;
         this.serviceInstances = serviceInstances == null ? new LinkedList<>() : serviceInstances;
+    }
+
+    public void updateBasicFields(ServiceBrokerCreate create) {
+        if (create.getHost() != null && !create.getHost().isEmpty()) setHost(create.getHost());
+        if (create.getPort() > 0) setPort(create.getPort());
+        if (create.getApiVersion() != null && !create.getApiVersion().isEmpty()) setApiVersion(create.getApiVersion());
+        if (create.getDescription() != null) setDescription(create.getDescription());
+        setKubernetesAllowed(create.isKubernetesAllowed());
+        setCloudFoundryAllowed(create.isCloudFoundryAllowed());
     }
 
     public String getHost() {
@@ -84,12 +101,16 @@ public class ServiceBroker implements Identifiable {
         return host + ":" + port;
     }
 
-    public String getBasicAuthToken() {
-        return basicAuthToken;
-    }
+    @JsonIgnore
+    public String getSalt() { return salt; }
 
-    public void setBasicAuthToken(String basicAuthToken) {
-        this.basicAuthToken = basicAuthToken;
+    public void setSalt(String salt) { this.salt = salt; }
+
+    @JsonIgnore
+    public String getEncryptedBasicAuthToken() { return encryptedBasicAuthToken; }
+
+    public void setEncryptedBasicAuthToken(String encryptedBasicAuthToken) {
+        this.encryptedBasicAuthToken = encryptedBasicAuthToken;
     }
 
     public String getId() { return id; }
@@ -125,12 +146,14 @@ public class ServiceBroker implements Identifiable {
         this.kubernetesAllowed = kubernetesAllowed;
     }
 
+    @JsonIgnore
     public List<CloudSite> getSites() {
         return sites;
     }
 
     public synchronized void setSites(List<CloudSite> sites) { this.sites = sites == null ? new LinkedList<>() : sites; }
 
+    @JsonIgnore
     public synchronized List<RegistryServiceInstance> getServiceInstances() { return serviceInstances; }
 
     public synchronized void setServiceInstances(List<RegistryServiceInstance> serviceInstances) {
@@ -170,7 +193,8 @@ public class ServiceBroker implements Identifiable {
         if (kubernetesAllowed != that.kubernetesAllowed) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (host != null ? !host.equals(that.host) : that.host != null) return false;
-        if (basicAuthToken != null ? !basicAuthToken.equals(that.basicAuthToken) : that.basicAuthToken != null)
+        if (salt != null ? !salt.equals(that.salt) : that.salt != null) return false;
+        if (encryptedBasicAuthToken != null ? !encryptedBasicAuthToken.equals(that.encryptedBasicAuthToken) : that.encryptedBasicAuthToken != null)
             return false;
         if (apiVersion != null ? !apiVersion.equals(that.apiVersion) : that.apiVersion != null) return false;
         return description != null ? description.equals(that.description) : that.description == null;
@@ -181,7 +205,8 @@ public class ServiceBroker implements Identifiable {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (host != null ? host.hashCode() : 0);
         result = 31 * result + port;
-        result = 31 * result + (basicAuthToken != null ? basicAuthToken.hashCode() : 0);
+        result = 31 * result + (salt != null ? salt.hashCode() : 0);
+        result = 31 * result + (encryptedBasicAuthToken != null ? encryptedBasicAuthToken.hashCode() : 0);
         result = 31 * result + (apiVersion != null ? apiVersion.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (cloudFoundryAllowed ? 1 : 0);
@@ -195,7 +220,8 @@ public class ServiceBroker implements Identifiable {
                 "id='" + id + '\'' +
                 ", host='" + host + '\'' +
                 ", port=" + port +
-                ", basicAuthToken='" + basicAuthToken + '\'' +
+                ", salt='" + salt + '\'' +
+                ", encryptedBasicAuthToken='" + encryptedBasicAuthToken + '\'' +
                 ", apiVersion='" + apiVersion + '\'' +
                 ", description='" + description + '\'' +
                 ", cloudFoundryAllowed=" + cloudFoundryAllowed +

@@ -25,7 +25,7 @@ public class ServiceInstanceRequestService extends BaseRequestService {
     public static ResponseWithHttpStatus<ServiceInstance> fetchServiceInstance(ServiceBroker serviceBroker, String serviceInstanceId, String apiHeader) throws HttpClientErrorException {
 
         String url = serviceBroker.getHostWithPort() + "/v2/service_instances/" + serviceInstanceId;
-        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiHeader));
         log.info("Sending fetch service request to " + url);
         return makeRequest(url, HttpMethod.GET, entity, ServiceInstance.class);
     }
@@ -38,7 +38,7 @@ public class ServiceInstanceRequestService extends BaseRequestService {
         String url = serviceBroker.getHostWithPort() + "/v2/service_instances/" + serviceInstanceId;
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("accepts_incomplete", accepts_incomplete);
-        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(),serviceBroker.getSalt(), apiHeader));
         HttpEntity<ServiceInstanceRequest> entity = new HttpEntity<>(request, headers);
         log.info("Sending create service request to " + url);
         return makeRequest(builder.build().toUriString(), HttpMethod.PUT, entity, ServiceInstanceResponse.class);
@@ -51,7 +51,7 @@ public class ServiceInstanceRequestService extends BaseRequestService {
         String url = serviceBroker.getHostWithPort() + "/v2/service_instance/" + serviceInstanceId;
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("accepts_incomplete", accepts_incomplete);
-        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiHeader));
         HttpEntity<ServiceInstanceUpdateRequest> entity = new HttpEntity<>(request, headers);
         return makeRequest(builder.build().toUriString(), HttpMethod.PATCH, entity, ServiceInstanceUpdateResponse.class);
     }
@@ -65,7 +65,7 @@ public class ServiceInstanceRequestService extends BaseRequestService {
                 .queryParam("service_id", serviceId)
                 .queryParam("plan_id", planId)
                 .queryParam("accepts_incomplete", accepts_incomplete);
-        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpHeaders headers = addOriginatingIdentityHeader(originatingIdentity, createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiHeader));
         HttpEntity entity = new HttpEntity(headers);
         log.info("Sending delete service request to " + url);
         return makeRequest(builder.build().toUriString(), HttpMethod.DELETE, entity, String.class);
@@ -82,7 +82,7 @@ public class ServiceInstanceRequestService extends BaseRequestService {
                 builder.queryParam(entry.getKey(), entry.getValue());
             }
         }
-        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getBasicAuthToken(), apiHeader));
+        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiHeader));
         log.info("Sending service instance last operation request to " + url);
         return makeRequest(builder.build().toUriString(), HttpMethod.GET, entity, JobProgressResponse.class);
     }
