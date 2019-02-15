@@ -150,7 +150,7 @@ public class ServiceBrokerManager extends BasicManager<ServiceBroker> {
         } catch (HttpClientErrorException ex) {
             log.error("Updating service catalog failed with " + ex.getStatusCode() + " for " + broker.getId(), ex);
         } catch (ResourceAccessException ex) {
-            log.error("Updating service catalog failed for " + broker.getId(), ex);
+            log.error("Updating service catalog failed for " + broker.getLoggingNameString(), ex);
         }
     }
 
