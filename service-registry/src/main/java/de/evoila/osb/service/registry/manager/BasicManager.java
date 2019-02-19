@@ -101,4 +101,8 @@ public class BasicManager<T extends Identifiable> {
         return false;
     }
 
+    public long count() {
+        return repository.count();
+    }
+
 }
