@@ -17,6 +17,8 @@ import java.util.Optional;
 public class SharedInstancesManager {
 
     public static final String SHARED_DEFINITIONS_ID = "shared-instances-id";
+    public static final String SHARED_DEFINITIONS_NAME = "shared-instance";
+    public static final String SHARED_DEFINITIONS_DESCRIPTION = "This service definition represents the shared service instances.";
 
     private RegistryServiceInstanceManager instanceManager;
     private ServiceDefinitionCacheManager cacheManager;
@@ -88,8 +90,8 @@ public class SharedInstancesManager {
     public ServiceDefinition getEmptySharedServiceDefinition() {
         ServiceDefinition sharedDefinition = new ServiceDefinition();
         sharedDefinition.setId(SHARED_DEFINITIONS_ID);
-        sharedDefinition.setName("shared-instances");
-        sharedDefinition.setDescription("This service definition represents the shared service instances.");
+        sharedDefinition.setName(SHARED_DEFINITIONS_NAME);
+        sharedDefinition.setDescription(SHARED_DEFINITIONS_DESCRIPTION);
         sharedDefinition.setBindable(true);
         sharedDefinition.setInstancesRetrievable(false);
         sharedDefinition.setBindingsRetrievable(false);
