@@ -31,6 +31,15 @@ public class ServiceDefinitionCacheManager {
         cache.clear();
     }
 
+    public synchronized List<ServiceDefinition> getUnmodifiableDefinitions() {
+        List<ServiceDefinition> definitions = new LinkedList<>();
+        for (Map.Entry<String, List<ServiceDefinition>> entry : cache.entrySet()) {
+            if (entry.getValue() != null)
+                definitions.addAll(entry.getValue());
+        }
+        return Collections.unmodifiableList(definitions);
+    }
+
     public synchronized List<ServiceDefinition> getUnmodifiableDefinitions(String brokerId) {
         if (exists(brokerId))
             return Collections.unmodifiableList(cache.get(brokerId));
