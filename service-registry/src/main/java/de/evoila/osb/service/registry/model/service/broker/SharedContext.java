@@ -92,7 +92,7 @@ public class SharedContext implements Identifiable {
     /**
      * Validates the fields of the SharedContext for proper usage.
      * Checks for null pointers and empty fields, if shared is true.
-     * @return true if SharedContext is valid in its current state and will not return false!
+     * @return true if SharedContext is valid in its current state and will never return false!
      * @throws SharedContextInvalidException if this object is invalid in its current state
      */
     public boolean validate() throws SharedContextInvalidException {

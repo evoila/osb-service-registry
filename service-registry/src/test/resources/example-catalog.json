@@ -1,0 +1,165 @@
+{
+  "services": [
+    {
+      "id": "7542E5CE-D659-4B63-98B8-7D6361BF1EB4",
+      "name": "osb-example",
+      "description": "Managed SQL DB Service - Deploying a SQL Database in a dedicated and managed environment",
+      "bindable": true,
+      "plans": [
+        {
+          "id": "195DBCB1-8F93-4F29-8BE4-411309DD520C",
+          "name": "s",
+          "description": "Deployment of a managed SQL Database to an existing shared SQL Cluster",
+          "metadata": {
+            "bullets": [
+              "1 GB disk size",
+              "super-fast",
+              "awesome"
+            ],
+            "costs": [
+              {
+                "amount": {
+                  "eur": 10.732
+                },
+                "unit": "monthly per vm"
+              },
+              {
+                "amount": {
+                  "eur": 10.54,
+                  "usd": 21.125
+                },
+                "unit": "weekly per call"
+              }
+            ],
+            "displayName": "Small DB",
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": true
+        },
+        {
+          "id": "6A9FA1C9-F504-4498-97CE-CD45E477C46B",
+          "name": "m",
+          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        },
+        {
+          "id": "581806BA-A9FE-4B75-ACA5-6FEACE29EFF0",
+          "name": "l",
+          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        },
+        {
+          "id": "A94E6CB1-23F5-4015-BE94-4CF577CE737F",
+          "name": "xl",
+          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        }
+      ],
+      "tags": [],
+      "metadata": {
+        "displayName": "osb-example",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/1812/2525/products/Anime-Guardians-Of-The-Galaxy-2-Groot-Cos-Star-Lord-Bruce-Lee-Statue-9-Types-Action.jpg_640x640_7_1024x1024.jpg?v=1498458985",
+        "longDescription": "Managed, highly available, Example clusters in the cloud",
+        "providerDisplayName": "Meshcloud",
+        "documentationUrl": "http://docs.meshcloud.io",
+        "supportUrl": "http://support.meshcloud.io"
+      },
+      "requires": [],
+      "dashboard": {
+        "url": "https://osb-example.cf/custom/v2/authentication",
+        "auth_endpoint": "https://uaa.cf/oauth"
+      },
+      "instances_retrievable": true,
+      "bindings_retrievable": true,
+      "dashboard_client": {
+        "id": "osb-example.cf",
+        "secret": "48070F71-5830-4FE4-BC90-9EB8108DFB28",
+        "redirect_uri": "https://osb-example.cf/custom/v2/authentication"
+      },
+      "plan_updateable": false
+    },
+    {
+      "id": "8542E5CE-D659-4B63-98B8-7D6361BF1EB4",
+      "name": "osb-example-second",
+      "description": "Managed SQL DB Service - Deploying a SQL Database in a dedicated and managed environment",
+      "bindable": true,
+      "plans": [
+        {
+          "id": "295DBCB1-8F93-4F29-8BE4-411309DD520C",
+          "name": "s",
+          "description": "Deployment of a managed SQL Database to an existing shared SQL Cluster",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": true
+        },
+        {
+          "id": "7A9FA1C9-F504-4498-97CE-CD45E477C46B",
+          "name": "m",
+          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        },
+        {
+          "id": "681806BA-A9FE-4B75-ACA5-6FEACE29EFF0",
+          "name": "l",
+          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        },
+        {
+          "id": "B94E6CB1-23F5-4015-BE94-4CF577CE737F",
+          "name": "xl",
+          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        }
+      ],
+      "tags": [],
+      "metadata": {
+        "displayName": "osb-example-second",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/1812/2525/products/Anime-Guardians-Of-The-Galaxy-2-Groot-Cos-Star-Lord-Bruce-Lee-Statue-9-Types-Action.jpg_640x640_7_1024x1024.jpg?v=1498458985",
+        "longDescription": "Managed, highly available, Example clusters in the cloud",
+        "providerDisplayName": "Meshcloud",
+        "documentationUrl": "http://docs.meshcloud.io",
+        "supportUrl": "http://support.meshcloud.io"
+      },
+      "requires": [],
+      "dashboard": {
+        "url": "https://osb-example.cf/v2/authentication",
+        "auth_endpoint": "https://uaa.cf/oauth"
+      },
+      "instances_retrievable": true,
+      "bindings_retrievable": true,
+      "dashboard_client": {
+        "id": "osb-example-second.cf",
+        "secret": "58070F71-5830-4FE4-BC90-9EB8108DFB28",
+        "redirect_uri": "https://osb-example.cf/v2/authentication"
+      },
+      "plan_updateable": false
+    }
+  ]
+}
