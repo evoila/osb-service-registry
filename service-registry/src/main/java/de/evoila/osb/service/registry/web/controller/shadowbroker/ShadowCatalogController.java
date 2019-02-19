@@ -3,10 +3,9 @@ package de.evoila.osb.service.registry.web.controller.shadowbroker;
 import de.evoila.cf.broker.model.catalog.ServiceDefinition;
 import de.evoila.osb.service.registry.manager.RegistryServiceInstanceManager;
 import de.evoila.osb.service.registry.manager.ServiceBrokerManager;
-import de.evoila.osb.service.registry.manager.SharedInstancesManager;
-import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
-import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
 import de.evoila.osb.service.registry.manager.ServiceDefinitionCacheManager;
+import de.evoila.osb.service.registry.manager.SharedInstancesManager;
+import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
 import de.evoila.osb.service.registry.web.controller.BaseController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,15 +41,8 @@ public class ShadowCatalogController extends BaseController {
 
         sbManager.updateAllServiceBrokerCatalogs(false);
 
-        for (ServiceBroker serviceBroker : sbManager.getAll()) {
-            List<ServiceDefinition> services = cacheManager.getUnmodifiableDefinitions(serviceBroker.getId());
-            if (services == null) {
-                log.error("Could not get service definitions for service broker '" + serviceBroker.getId() + "'.");
-            } else {
-                allDefinitions.addAll(services);
-            }
-        }
-
+        allDefinitions.addAll(cacheManager.getUnmodifiableDefinitions());
+        
         ServiceDefinition sharedDefinition = sharedInstancesManager.getSharedServiceDefinition();
         if (sharedDefinition.getPlans() != null && sharedDefinition.getPlans().size() > 0)
             allDefinitions.add(sharedDefinition);
