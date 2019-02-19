@@ -56,7 +56,7 @@ public class SharingInstanceController extends BaseController {
 
         if (sharing) {
             log.info("Initiating shared context for " + serviceInstance.getId());
-            sharedContext.initShared(definition);
+            sharedContext.initShared(serviceInstance, definition);
             if (displayName != null && !displayName.isEmpty()) sharedContext.setDisplayName(displayName);
         } else {
             if (!sharedInstancesManager.isTheOnlySharedInstance(serviceInstance))

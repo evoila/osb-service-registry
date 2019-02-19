@@ -39,7 +39,7 @@ public class RegistryServiceInstance implements Identifiable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<RegistryBinding> bindings;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne (cascade = CascadeType.PERSIST)
     @JoinColumn(name = "shared_context_id")
     private SharedContext sharedContext;
 
@@ -69,7 +69,7 @@ public class RegistryServiceInstance implements Identifiable {
         this.sharedContext = sharedContext;
 
         if (sharedContext != null)
-            sharedContext.setServiceInstance(this);
+            sharedContext.addServiceInstance(this);
     }
 
     public String getId() {
@@ -82,9 +82,39 @@ public class RegistryServiceInstance implements Identifiable {
 
     public String getServiceDefinitionId() { return serviceDefinitionId; }
 
+    /**
+     * Checks whether the service instance is the original instance or if it is a shared one
+     * and returns the {@linkplain SharedContext#serviceDefinitionId} of the {@linkplain RegistryServiceInstance#sharedContext}  for shared instances
+     * or the {@linkplain RegistryServiceInstance#serviceDefinitionId} for original instances.
+     * Used for getting the correct id for requests to the service broker.
+     *
+     * @return {@linkplain SharedContext#serviceDefinitionId} or {@linkplain RegistryServiceInstance#serviceDefinitionId}
+     */
+    @JsonIgnore
+    public String getServiceDefinitionIdForServiceBroker() {
+        if (!originalInstance && hasSharedServiceInstanceId())
+            return sharedContext.getServiceDefinitionId();
+        return serviceDefinitionId;
+    }
+
     public void setServiceDefinitionId(String serviceDefinitionId) { this.serviceDefinitionId = serviceDefinitionId; }
 
     public String getPlanId() { return planId; }
+
+    /**
+     * Checks whether the service instance is the original instance or if it is a shared one
+     * and returns the {@linkplain SharedContext#planId} of the {@linkplain RegistryServiceInstance#sharedContext}  for shared instances
+     * or the {@linkplain RegistryServiceInstance#planId} for original instances.
+     * Used for getting the correct plan id for requests to the service broker.
+     *
+     * @return {@linkplain SharedContext#planId} or {@linkplain RegistryServiceInstance#planId}
+     */
+    @JsonIgnore
+    public String getPlanIdForServiceBroker() {
+        if (!originalInstance && hasSharedServiceInstanceId())
+            return sharedContext.getPlanId();
+        return planId;
+    }
 
     public void setPlanId(String planId) { this.planId = planId; }
 

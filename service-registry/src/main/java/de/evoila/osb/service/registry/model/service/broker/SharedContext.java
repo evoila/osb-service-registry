@@ -5,8 +5,12 @@ import de.evoila.cf.broker.model.catalog.ServiceDefinition;
 import de.evoila.osb.service.registry.exceptions.SharedContextInvalidException;
 import de.evoila.osb.service.registry.manager.Identifiable;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @Table(name = "shared_context")
@@ -27,25 +31,19 @@ public class SharedContext implements Identifiable {
 
     private boolean shared;
 
-    @OneToOne
-    @JoinColumn(name = "instance_id")
-    private RegistryServiceInstance serviceInstance;
+    @OneToMany(mappedBy = "sharedContext")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private List<RegistryServiceInstance> serviceInstances;
 
     public SharedContext() {
         this("", "", "", "", "", "", "", "", "", false);
     }
 
-    public SharedContext(SharedContext other) {
-        this("", other.getServiceInstanceId()
-                , other.getServiceDefinitionId(), other.getPlanId(), other.getOrganization(), other.getSpace()
-                , other.getNameSpace(), other.getDisplayName(), other.getDescription(), other.isShared(), null);
-    }
-
     public SharedContext(String id, String serviceInstanceId, String serviceDefinitionId, String planId, String organization, String space, String nameSpace, String displayName, String description, boolean shared) {
-        this(id, serviceInstanceId, serviceDefinitionId, planId, organization, space, nameSpace, displayName, description, shared, null);
+        this(id, serviceInstanceId, serviceDefinitionId, planId, organization, space, nameSpace, displayName, description, shared, new LinkedList<>());
     }
 
-    public SharedContext(String id, String serviceInstanceId, String serviceDefinitionId, String planId, String organization, String space, String nameSpace, String displayName, String description, boolean shared, RegistryServiceInstance serviceInstance) {
+    public SharedContext(String id, String serviceInstanceId, String serviceDefinitionId, String planId, String organization, String space, String nameSpace, String displayName, String description, boolean shared, List<RegistryServiceInstance> serviceInstances) {
         this.id = id;
         this.serviceInstanceId = serviceInstanceId;
         this.serviceDefinitionId = serviceDefinitionId;
@@ -56,20 +54,12 @@ public class SharedContext implements Identifiable {
         this.displayName = displayName;
         this.description = description;
         this.shared = shared;
-        this.serviceInstance = serviceInstance;
-    }
-
-    /**
-     * Calls {@linkplain #initShared(RegistryServiceInstance, ServiceDefinition)} with its {@linkplain #serviceInstance}
-     */
-    public void initShared(ServiceDefinition definition) {
-        if (serviceInstance != null)
-            initShared(serviceInstance, definition);
+        this.serviceInstances = serviceInstances == null ? new LinkedList<>() : serviceInstances;
     }
 
     /**
      * Sets shared to true and initializes the SharedContext object with values from the service instance.
-     * This should not be called upon an uninitialized SharedContext object bound to a non original service instance,
+     * This should not be called upon an uninitialized SharedContext object with a non original service instance,
      * because this would set up the SharedContext in way, which does not refer to an actual existing service instance.
      * Following fields are set if they are empty or null.
      * <ul>
@@ -110,7 +100,7 @@ public class SharedContext implements Identifiable {
             if (serviceInstanceId == null) throw new SharedContextInvalidException("serviceInstanceId", SharedContextInvalidException.FIELD_IS_NULL);
             if (serviceDefinitionId == null) throw new SharedContextInvalidException("serviceDefinitionId", SharedContextInvalidException.FIELD_IS_NULL);
             if (planId == null) throw new SharedContextInvalidException("planId", SharedContextInvalidException.FIELD_IS_NULL);
-            if (serviceInstance == null) throw new SharedContextInvalidException("serviceInstance", SharedContextInvalidException.FIELD_IS_NULL);
+            if (serviceInstances == null) throw new SharedContextInvalidException("serviceInstances", SharedContextInvalidException.FIELD_IS_NULL);
 
             if (serviceInstanceId.isEmpty()) throw new SharedContextInvalidException("serviceInstanceId", SharedContextInvalidException.FIELD_IS_EMPTY);
             if (serviceDefinitionId.isEmpty()) throw new SharedContextInvalidException("serviceDefinitionId", SharedContextInvalidException.FIELD_IS_EMPTY);
@@ -168,9 +158,18 @@ public class SharedContext implements Identifiable {
 
     public void setDescription(String description) { this.description = description; }
 
-    public RegistryServiceInstance getServiceInstance() { return serviceInstance; }
+    public List<RegistryServiceInstance> getServiceInstances() { return serviceInstances; }
 
-    public void setServiceInstance(RegistryServiceInstance serviceInstance) { this.serviceInstance = serviceInstance; }
+    public void setServiceInstances(List<RegistryServiceInstance> serviceInstances) { this.serviceInstances = serviceInstances == null ? new LinkedList<>() : serviceInstances; }
+
+    public synchronized void addServiceInstance(RegistryServiceInstance serviceInstance) {
+        if (!serviceInstances.contains(serviceInstance))
+            serviceInstances.add(serviceInstance);
+    }
+
+    public synchronized void removeServiceInstance(RegistryServiceInstance serviceInstance) {
+        serviceInstances.remove(serviceInstance);
+    }
 
     @Override
     public boolean equals(Object o) {

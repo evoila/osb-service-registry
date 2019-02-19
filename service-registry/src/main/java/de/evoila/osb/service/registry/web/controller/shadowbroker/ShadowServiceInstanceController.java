@@ -71,6 +71,12 @@ public class ShadowServiceInstanceController extends BaseController {
             if (serviceInstance.getBindings().size() == 0) {
                 log.debug("Last operation returned with 410 (GONE) and no bindings exist -> deleting the service instance.");
                 serviceInstanceManager.remove(serviceInstance);
+                if (sharedInstancesManager.isTheOnlySharedInstance(serviceInstance)) {
+                    sharedContextManager.remove(serviceInstance.getSharedContext());
+                } else {
+                    serviceInstance.getSharedContext().removeServiceInstance(serviceInstance);
+                    sharedContextManager.update(serviceInstance.getSharedContext());
+                }
             } else {
                 log.debug("Last operation returned with 410 (GONE) but there are still " + serviceInstance.getBindings().size() + " bindings in existence -> NOT deleting the service instance.");
             }
@@ -181,9 +187,10 @@ public class ShadowServiceInstanceController extends BaseController {
                 sharedOfInstance.getDashboardUrl(),
                 sharedOfInstance.getBroker(),
                 new LinkedList<>(),
-                new SharedContext(sharedOfInstance.getSharedContext()));
+                sharedOfInstance.getSharedContext());
 
-        serviceInstanceManager.add(registryServiceInstance);
+        registryServiceInstance = serviceInstanceManager.add(registryServiceInstance).get();
+        sharedContextManager.update(registryServiceInstance.getSharedContext());
 
         return new ResponseEntity<ServiceInstanceResponse>(
                 new ServiceInstanceResponse(registryServiceInstance.getDashboardUrl()), HttpStatus.CREATED);
@@ -225,13 +232,18 @@ public class ShadowServiceInstanceController extends BaseController {
         if (!sharedInstancesManager.isTheOnlySharedInstance(serviceInstance)) {
             log.info("This service instance is not the only existing shared instance -> only deleting the registry entry");
             serviceInstanceManager.remove(serviceInstance);
+            serviceInstance.getSharedContext().removeServiceInstance(serviceInstance);
+            sharedContextManager.update(serviceInstance.getSharedContext());
             return new ResponseEntity<String>("{}", HttpStatus.OK);
         }
 
-        ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceDefinitionId(serviceId);
+        ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(instanceId);
         ResponseWithHttpStatus<String> response = null;
         try {
-            response = ServiceInstanceRequestService.deleteServiceInstance(sb, serviceInstance.getIdForServiceBroker(), serviceId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
+            response = ServiceInstanceRequestService.deleteServiceInstance(sb, serviceInstance.getIdForServiceBroker(),
+                    serviceInstance.getServiceDefinitionIdForServiceBroker(),
+                    serviceInstance.getPlanIdForServiceBroker(),
+                    apiVersion, originatingIdentity, acceptsIncomplete);
         } catch (HttpClientErrorException ex) {
             log.error("Received a error when trying to delete an instance at the service broker " + sb.getHost(), ex);
             throw ex;
@@ -241,12 +253,13 @@ public class ShadowServiceInstanceController extends BaseController {
         if (acceptsIncomplete && response.getStatus() == HttpStatus.ACCEPTED) {
             log.debug("Setting deletion progress to true for service instance: " + instanceId);
             serviceInstance.setDeletionInProgress(true);
-            log.debug("Updating binding in the storage: " + instanceId);
+            log.debug("Updating service instance in the storage: " + instanceId);
             serviceInstanceManager.update(serviceInstance);
             // actual removal from storage needs to be done by last_operation endpoint
         } else if (response.getStatus() == HttpStatus.OK) {
-            log.debug("Removing binding from storage: " + instanceId);
+            log.debug("Removing service instance from storage: " + instanceId);
             serviceInstanceManager.remove(serviceInstance);
+            sharedContextManager.remove(serviceInstance.getSharedContext());
         }
 
         return new ResponseEntity<>(response.getBody(), response.getStatus());
