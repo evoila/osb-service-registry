@@ -1,15 +1,15 @@
 {
   "services": [
     {
-      "id": "7542E5CE-D659-4B63-98B8-7D6361BF1EB4",
+      "id": "eda9c814-223e-42fd-93b2-97690ef3d6ad",
       "name": "osb-example",
-      "description": "Managed SQL DB Service - Deploying a SQL Database in a dedicated and managed environment",
+      "description": "First example service of an example service broker.",
       "bindable": true,
       "plans": [
         {
-          "id": "195DBCB1-8F93-4F29-8BE4-411309DD520C",
+          "id": "15a7c1f8-ccac-4a54-83cd-b9aa8ce256ec",
           "name": "s",
-          "description": "Deployment of a managed SQL Database to an existing shared SQL Cluster",
+          "description": "Small example plan",
           "metadata": {
             "bullets": [
               "1 GB disk size",
@@ -31,16 +31,16 @@
                 "unit": "weekly per call"
               }
             ],
-            "displayName": "Small DB",
+            "displayName": "Small service",
             "instanceGroupConfig": [],
             "customParameters": {}
           },
           "free": true
         },
         {
-          "id": "6A9FA1C9-F504-4498-97CE-CD45E477C46B",
+          "id": "61d5ed1e-8ba5-4959-bf37-d4512b3188f2",
           "name": "m",
-          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "description": "Medium example plan",
           "metadata": {
             "instanceGroupConfig": [],
             "customParameters": {}
@@ -48,9 +48,9 @@
           "free": false
         },
         {
-          "id": "581806BA-A9FE-4B75-ACA5-6FEACE29EFF0",
+          "id": "8f65fcb6-421f-4703-85e8-67f0f3623094",
           "name": "l",
-          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "description": "Large example plan",
           "metadata": {
             "instanceGroupConfig": [],
             "customParameters": {}
@@ -58,9 +58,9 @@
           "free": false
         },
         {
-          "id": "A94E6CB1-23F5-4015-BE94-4CF577CE737F",
+          "id": "a53178c7-db9c-48ab-961f-28372c788c66",
           "name": "xl",
-          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "description": "Extra large example plan",
           "metadata": {
             "instanceGroupConfig": [],
             "customParameters": {}
@@ -71,11 +71,10 @@
       "tags": [],
       "metadata": {
         "displayName": "osb-example",
-        "imageUrl": "https://cdn.shopify.com/s/files/1/1812/2525/products/Anime-Guardians-Of-The-Galaxy-2-Groot-Cos-Star-Lord-Bruce-Lee-Statue-9-Types-Action.jpg_640x640_7_1024x1024.jpg?v=1498458985",
-        "longDescription": "Managed, highly available, Example clusters in the cloud",
-        "providerDisplayName": "Meshcloud",
-        "documentationUrl": "http://docs.meshcloud.io",
-        "supportUrl": "http://support.meshcloud.io"
+        "longDescription": "This service is an example of an example service broker and does therefor not hold any real features.",
+        "providerDisplayName": "Example Provider",
+        "documentationUrl": "http://docs.provider.com",
+        "supportUrl": "http://support.provider.com"
       },
       "requires": [],
       "dashboard": {
@@ -86,21 +85,21 @@
       "bindings_retrievable": true,
       "dashboard_client": {
         "id": "osb-example.cf",
-        "secret": "48070F71-5830-4FE4-BC90-9EB8108DFB28",
+        "secret": "super-secret-dashboard-secret",
         "redirect_uri": "https://osb-example.cf/custom/v2/authentication"
       },
       "plan_updateable": false
     },
     {
-      "id": "8542E5CE-D659-4B63-98B8-7D6361BF1EB4",
+      "id": "77fadab9-9eac-4cb6-ac6f-5bcb3a5806ff",
       "name": "osb-example-second",
-      "description": "Managed SQL DB Service - Deploying a SQL Database in a dedicated and managed environment",
+      "description": "Second example service of an example service broker.",
       "bindable": true,
       "plans": [
         {
-          "id": "295DBCB1-8F93-4F29-8BE4-411309DD520C",
+          "id": "80e82c23-0039-4b0a-a726-634ea896c94a",
           "name": "s",
-          "description": "Deployment of a managed SQL Database to an existing shared SQL Cluster",
+          "description": "Another small plan",
           "metadata": {
             "instanceGroupConfig": [],
             "customParameters": {}
@@ -108,9 +107,9 @@
           "free": true
         },
         {
-          "id": "7A9FA1C9-F504-4498-97CE-CD45E477C46B",
+          "id": "6d578289-12aa-4951-a25c-20bc1d64825f",
           "name": "m",
-          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "description": "Another medium plan",
           "metadata": {
             "instanceGroupConfig": [],
             "customParameters": {}
@@ -118,9 +117,9 @@
           "free": false
         },
         {
-          "id": "681806BA-A9FE-4B75-ACA5-6FEACE29EFF0",
+          "id": "d484387b-8937-4aa7-a52e-4d108b81c850",
           "name": "l",
-          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "description": "Another large plan",
           "metadata": {
             "instanceGroupConfig": [],
             "customParameters": {}
@@ -128,9 +127,9 @@
           "free": false
         },
         {
-          "id": "B94E6CB1-23F5-4015-BE94-4CF577CE737F",
+          "id": "82593fc3-a16d-449c-ae8a-8decff37cd76",
           "name": "xl",
-          "description": "Deployment of a managed SQL Database to a dedicated VM",
+          "description": "Another extra large plan",
           "metadata": {
             "instanceGroupConfig": [],
             "customParameters": {}
@@ -141,11 +140,10 @@
       "tags": [],
       "metadata": {
         "displayName": "osb-example-second",
-        "imageUrl": "https://cdn.shopify.com/s/files/1/1812/2525/products/Anime-Guardians-Of-The-Galaxy-2-Groot-Cos-Star-Lord-Bruce-Lee-Statue-9-Types-Action.jpg_640x640_7_1024x1024.jpg?v=1498458985",
-        "longDescription": "Managed, highly available, Example clusters in the cloud",
-        "providerDisplayName": "Meshcloud",
-        "documentationUrl": "http://docs.meshcloud.io",
-        "supportUrl": "http://support.meshcloud.io"
+        "longDescription": "This service is another example of an example service broker and does therefor not hold any real features.",
+        "providerDisplayName": "Example Provider",
+        "documentationUrl": "http://docs.provider.com",
+        "supportUrl": "http://support.provider.com"
       },
       "requires": [],
       "dashboard": {
@@ -156,7 +154,7 @@
       "bindings_retrievable": true,
       "dashboard_client": {
         "id": "osb-example-second.cf",
-        "secret": "58070F71-5830-4FE4-BC90-9EB8108DFB28",
+        "secret": "hyper-secret-dashboard-secret",
         "redirect_uri": "https://osb-example.cf/v2/authentication"
       },
       "plan_updateable": false
