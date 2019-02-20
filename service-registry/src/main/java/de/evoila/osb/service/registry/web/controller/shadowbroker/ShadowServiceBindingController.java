@@ -152,7 +152,8 @@ public class ShadowServiceBindingController extends BaseController {
         // Check that the binding does not exist already, otherwise do not add a new binding.
         // This can be caused by an additional async create call for an already existing binding in creation progress (See OSB specification for async binding creation).
         if (!bindingManager.exists(serviceBindingId)) {
-            RegistryBinding binding = new RegistryBinding(serviceBindingId, false, false, serviceInstance);
+            String appGuid = request.getAppGuid() == null ? request.getBindResource().getAppGuid() : request.getAppGuid();
+            RegistryBinding binding = new RegistryBinding(serviceBindingId, appGuid, request.getBindResource().getRoute(), false, false, serviceInstance);
             if (acceptsIncomplete && response.getStatus() == HttpStatus.ACCEPTED) {
                 log.debug("Setting creation progress to true for binding: " + serviceBindingId);
                 binding.setCreationInProgress(true);

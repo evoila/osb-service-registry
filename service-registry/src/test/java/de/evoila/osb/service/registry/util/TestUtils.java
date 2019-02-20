@@ -72,7 +72,7 @@ public class TestUtils {
     }
 
     public static RegistryBinding getRandomRegistryBinding() {
-        return new RegistryBinding(getRandomUUID(), false, false, null);
+        return new RegistryBinding(getRandomUUID(), getRandomUUID(), "http://test.app.route", false, false, null);
     }
 
     public static String getRandomBasicAuthToken() {
