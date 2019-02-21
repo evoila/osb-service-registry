@@ -22,8 +22,4 @@ public class MockServer {
         mockServer.stop();
     }
 
-    public void prepareEndpoints() {
-    }
-
-
 }

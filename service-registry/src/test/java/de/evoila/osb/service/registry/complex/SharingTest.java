@@ -42,7 +42,6 @@ import static org.junit.Assert.*;
 @EnableAutoConfiguration
 public class SharingTest {
 
-
     private static MockServer mockServer;
     private static ServiceBrokerMockClient sbMock;
 
@@ -57,14 +56,16 @@ public class SharingTest {
     @Autowired
     private ServiceDefinitionCacheManager definitionCacheManager;
     @Autowired
+    private SharedContextManager sharedContextManager;
+    @Autowired
     private Cryptor cryptor;
+
 
     @BeforeClass
     public static void startMockServer() throws IOException {
         TestRequestService.initHeaders();
         mockServer = new MockServer(MockServer.SHARE, 8081);
         mockServer.startServer();
-        mockServer.prepareEndpoints();
         ServiceBrokerMockClient.mockServiceBroker();
         sbMock = ServiceBrokerMockClient.getServiceBrokerMock();
     }
@@ -76,66 +77,122 @@ public class SharingTest {
 
     /**
      * This test fulfills a end-to-end test for sharing instances.
-     * In it following steps are done and checked:
+     * In it following steps are done and checked in order:
      * <ul>
      * <li>Used managers and services autowiring</li>
-     * <li>Empty catalog and cache at the start</li>
+     * <li>Pre Test condition</li>
      * <li>Service Broker registration</li>
-     * <li>Catalog after registration</li>
      * <li>Service instance provisioning</li>
+     * <li>Service binding creation</li>
      * <li>Sharing a service instance</li>
      * <li>Catalog after sharing a service instance</li>
      * <li>Shared service instance provisioning</li>
+     * <li>Service binding on shared instance creation</li>
      * <li>Catalog after shared service instance provisioning</li>
-     * <li>Original service instance deletion</li>
-     * <li>Catalog after first deletion</li>
+     * <li>Blocked service instance unprovisioning</li>
+     * <li>Blocked unsharing of service instance</li>
+     * <li>Binding deletion of original instance</li>
+     * <li>Original service instance unprovisioning</li>
+     * <li>Catalog after deprovisioning of original instance</li>
+     * <li>Service Binding creation on shared service instance after </li>
+     * <li>Unsharing the shared instance</li>
+     * <li>Binding deletion of shared instance</li>
+     * <li>Shared service instance unprovisioning</li>
+     * <li>Post Test condition</li>
      *
      * </ul>
      */
     @Test
     public void runTest() throws ResourceNotFoundException {
+        ServiceBrokerCreate serviceBrokerCreate = ServiceBrokerMockClient.getServiceBrokerCreate();
         ServiceInstanceRequest instanceRequest = ServiceBrokerMockClient.getServiceInstanceRequest(sbMock);
         ServiceInstanceRequest sharedInstanceRequest = ServiceBrokerMockClient.getSharedServiceInstanceRequest(sbMock, ServiceBrokerMockClient.TEST_INSTANCE_1);
+        ServiceInstanceBindingRequest bindingRequest = ServiceBrokerMockClient.getBindingRequest(sbMock);
+        String serviceDefinitionId = instanceRequest.getServiceDefinitionId();
+        String planId = instanceRequest.getPlanId();
 
+        // Check the availability of all services and managers
         checkAutowiring();
+
+        // Check pre conditions
         checkCatalog(true, false);
-        String brokerId = registerBroker();
+        checkEmptyStorage();
+
+        // Register new service broker and check catalog afterwards
+        String brokerId = registerBroker(0, serviceBrokerCreate);
         ResponseEntity<CatalogResponse> catalogResponse = checkCatalog(false, false);
 
         // Fill values of singleton of ServiceBrokerMockClient for later use
         sbMock.setupMock(catalogResponse.getBody().getServices(), ServiceBrokerMockClient.SERVICE_BROKER_ORG, ServiceBrokerMockClient.SERVICE_BROKER_SPACE);
 
+        // Provision original instance and add a binding
         String instanceId = provisionInstance(0,
                 instanceRequest,
                 ServiceBrokerMockClient.TEST_INSTANCE_1,
                 false,
                 null);
-        String binding1Id = bind(0,ServiceBrokerMockClient.getBindingRequest(sbMock), instanceId, ServiceBrokerMockClient.TEST_BINDING_1);
+        String binding1Id = bind(0, bindingRequest, instanceId, ServiceBrokerMockClient.TEST_BINDING_1);
+
+        // Try to unregister broker -> should be blocked
+        unregisterBroker(1, brokerId, true);
+
+        // Share original instance and check definition in catalog
         shareInstance(instanceId);
         checkCatalog(false, true);
+
+        // Create a shared instance
         String sharedInstanceId = provisionInstance(1,
                 sharedInstanceRequest,
                 ServiceBrokerMockClient.TEST_INSTANCE_1_SHARED,
                 true,
                 instanceId);
-        String shareBinding1Id = bind(1, ServiceBrokerMockClient.getBindingRequest(sbMock), sharedInstanceId, ServiceBrokerMockClient.TEST_BINDING_OF_SHARED_1);
-        String binding2Id = bind(2, ServiceBrokerMockClient.getBindingRequest(sbMock), instanceId, ServiceBrokerMockClient.TEST_BINDING_2);
+
+        // Create bindings on original and shared instance
+        String sharedBinding1Id = bind(1, bindingRequest, sharedInstanceId, ServiceBrokerMockClient.TEST_BINDING_OF_SHARED_1);
+        String binding2Id = bind(2, bindingRequest, instanceId, ServiceBrokerMockClient.TEST_BINDING_2);
 
         // Try to delete instances with active bindings -> should be blocked
-        deleteInstance(2, instanceId, instanceRequest.getServiceDefinitionId(), instanceRequest.getPlanId(), true);
+        deleteInstance(2, instanceId, serviceDefinitionId, planId, true);
         deleteInstance(2, sharedInstanceId, sharedInstanceRequest.getServiceDefinitionId(), sharedInstanceRequest.getPlanId(), true);
 
-        // Try to unshare an instance that has more than one reference
+        // Try to unshare instances that have more than one reference -> should be blocked
         unshareInstance(instanceId, false);
         unshareInstance(sharedInstanceId, false);
 
+        // Delete all bindings of original instance
+        unbind(3, instanceId, binding1Id, serviceDefinitionId, planId);
+        unbind(2, instanceId, binding2Id, serviceDefinitionId, planId);
 
+        // Delete original instance and check catalog
+        deleteInstance(2, instanceId, serviceDefinitionId, planId, false);
+        checkCatalog(false, true);
+
+        // Try to unregister broker after original instance was unprovisioned -> should be blocked
+        unregisterBroker(1, brokerId, true);
+
+        // Create new binding on shared instance with original instance being deleted
+        String sharedBinding2Id = bind(1, bindingRequest, sharedInstanceId, ServiceBrokerMockClient.TEST_BINDING_OF_SHARED_2);
+
+        // Unshare instance
+        unshareInstance(sharedInstanceId, true);
+        checkCatalog(false, false);
+
+        // Delete bindings of shared instance
+        unbind(2, sharedInstanceId, sharedBinding1Id, serviceDefinitionId, planId);
+        unbind(1, sharedInstanceId, sharedBinding2Id, serviceDefinitionId, planId);
+
+        // Unprovision shared instance
+        deleteInstance(1, sharedInstanceId, serviceDefinitionId, planId, false);
+
+        // Unregister service broker
+        unregisterBroker(1, brokerId, false);
+
+        // Check post conditions
+        checkCatalog(true, false);
+        checkEmptyStorage();
 
         // TODO:
-        // - deletion of original instance
-        // - deletion of shared instance
-        // - post test check
-        // - bindings at some point / several points
+        // - binding functionality to test
     }
 
     public void checkAutowiring() {
@@ -146,6 +203,15 @@ public class SharingTest {
         assertNotNull("Service definition cache manager was not autowired correctly.", definitionCacheManager);
         assertNotNull("Cryptor service was not autowired correctly.", cryptor);
         assertNotNull("Registry binding manager was not autowired correctly.", bindingManager);
+    }
+
+    public void checkEmptyStorage() {
+        assertTrue("", instanceManager.count() == 0);
+        assertTrue("", sbManager.count() == 0);
+        assertTrue("", definitionCacheManager.getUnmodifiableDefinitions().isEmpty());
+        assertTrue("", bindingManager.count() == 0);
+        assertTrue("", sharedInstancesManager.getSharedServiceInstances().isEmpty());
+//        assertTrue("", );
     }
 
     public ResponseEntity<CatalogResponse> checkCatalog(boolean hasToBeEmpty, boolean sharedDefinitionExists) {
@@ -186,17 +252,24 @@ public class SharingTest {
         return catalogResponse;
     }
 
-    public String registerBroker() {
+    public String registerBroker(int alreadyActiveBrokers, ServiceBrokerCreate serviceBrokerCreate) throws ResourceNotFoundException {
         // Register new broker and check pre and post conditions
+        if (alreadyActiveBrokers < 0)
+            throw new IllegalArgumentException("alreadyActiveBrokers must be zero or bigger.");
+        assertTrue("There are more or less active service brokers than the expected " + alreadyActiveBrokers + ".",
+                countExistingObjects(alreadyActiveBrokers, sbManager.getAll().iterator()));
+
         assertFalse("There are already active service brokers.", sbManager.getAll().iterator().hasNext());
-        ResponseEntity<String> sbResponse = TestRequestService.registerTestServiceBroker();
+        ResponseEntity<String> sbResponse = TestRequestService.registerTestServiceBroker(serviceBrokerCreate);
         assertSame("Response code is not 200 when registering the test service broker",
                 sbResponse.getStatusCode(), HttpStatus.OK);
-        assertTrue("No service broker was registered.", sbManager.getAll().iterator().hasNext());
-        String sbId = sbManager.getAll().iterator().next().getId();
-        ServiceBrokerCreate sbCreate = ServiceBrokerMockClient.getServiceBrokerCreate();
-        assertTrue("Created service broker does not match the intended one.", brokerEqualsCreate(sbManager.get(sbId).get(), sbCreate));
-        return sbId;
+
+        assertTrue("There are more or less active service brokers than the expected " + (alreadyActiveBrokers + 1) + ".",
+                countExistingObjects(alreadyActiveBrokers + 1, sbManager.getAll().iterator()));
+
+        ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceDefinitionId(sbMock.getDefinition().getId());
+        assertTrue("Created service broker does not match the intended one.", brokerEqualsCreate(sb, serviceBrokerCreate));
+        return sb.getId();
     }
 
     public String provisionInstance(int alreadyActiveInstances, ServiceInstanceRequest instanceRequest, String serviceInstanceId, boolean shouldBeShared, String originalInstanceId) throws ResourceNotFoundException {
@@ -216,6 +289,7 @@ public class SharingTest {
                 countExistingObjects(alreadyActiveInstances + 1, instanceManager.getAll().iterator()));
         RegistryServiceInstance serviceInstance = instanceManager.searchServiceInstance(serviceInstanceId);
         assertTrue("Created service instance does not match the intended one.", instanceEqualsRequest(serviceInstance, instanceRequest));
+        assertTrue("Service instance already has bindings after creation.", serviceInstance.getBindings().isEmpty());
 
         if (shouldBeShared) {
             assertTrue("Provisioned shared instance is not specified as shared, but should be.", serviceInstance.isShared());
@@ -235,6 +309,7 @@ public class SharingTest {
 
         assertTrue("There are more or less active registry service bindings than the expected " + alreadyActiveBindings + ".",
                 countExistingObjects(alreadyActiveBindings, bindingManager.getAll().iterator()));
+        assertTrue("Referenced service instance does not exist.", instanceManager.get(serviceInstanceId).isPresent());
 
         ResponseEntity<ServiceInstanceBindingResponse> response = TestRequestService.bind(serviceInstanceId, serviceBindingId, bindingRequest);
         assertTrue("Service Binding was not created properly.", response.getStatusCode() == HttpStatus.CREATED && response.getBody() != null);
@@ -252,7 +327,7 @@ public class SharingTest {
         // Share previously created instance and check pre and post conditions
         assertFalse("Previously created service instance is already shared, but should not be.",
                 instanceManager.get(instanceId).get().isShared());
-        ResponseEntity<?> sharingResponse = TestRequestService.setShared(true, ServiceBrokerMockClient.TEST_INSTANCE_1);
+        ResponseEntity<?> sharingResponse = TestRequestService.setShared(true, instanceId);
         assertSame("Unsharing an instance did not function properly.", sharingResponse.getStatusCode(), HttpStatus.OK);
         assertTrue("Previously shared service instance is not registered as shared.",
                 instanceManager.get(instanceId).get().isShared());
@@ -282,7 +357,7 @@ public class SharingTest {
             assertEquals("Service instance was not deleted properly.", response.getStatusCode(), HttpStatus.OK);
         }
         assertTrue("There are more or less active registry service instances than the expected " + alreadyActiveInstances + ".",
-                countExistingObjects(alreadyActiveInstances-1, instanceManager.getAll().iterator()));
+                countExistingObjects(alreadyActiveInstances - 1, instanceManager.getAll().iterator()));
     }
 
     public void unshareInstance(String instanceId, boolean isTheOnlyInstance) {
@@ -291,7 +366,7 @@ public class SharingTest {
                 instanceManager.get(instanceId).get().isShared());
         ResponseEntity<?> unsharingResponse = null;
         try {
-            unsharingResponse = TestRequestService.setShared(false, ServiceBrokerMockClient.TEST_INSTANCE_1);
+            unsharingResponse = TestRequestService.setShared(false, instanceId);
         } catch (HttpClientErrorException ex) {
             unsharingResponse = new ResponseEntity<String>(ex.getResponseBodyAsString(), ex.getStatusCode());
         }
@@ -305,6 +380,50 @@ public class SharingTest {
             assertFalse("Previously shared service instance is still registered as shared.",
                     instanceManager.get(instanceId).get().isShared());
         }
+    }
+
+    public void unbind(int alreadyActiveBindings, String serviceInstanceId, String serviceBindingId, String definitionId, String planId) {
+        if (alreadyActiveBindings < 1)
+            throw new IllegalArgumentException("alreadyActiveBindings must be one or bigger.");
+
+        assertTrue("There are more or less active registry service bindings than the expected " + alreadyActiveBindings + ".",
+                countExistingObjects(alreadyActiveBindings, bindingManager.getAll().iterator()));
+        assertTrue("Referenced service instance does not exist.", instanceManager.get(serviceInstanceId).isPresent());
+
+        ResponseEntity<JobProgress> response = TestRequestService.unbind(serviceInstanceId, serviceBindingId, definitionId, planId);
+        assertTrue("Service Binding was not deleted properly.", response.getStatusCode() == HttpStatus.OK && response.getBody() != null);
+
+        assertTrue("There should be " + (alreadyActiveBindings - 1) + " registry service bindings by now.",
+                countExistingObjects(alreadyActiveBindings - 1, bindingManager.getAll().iterator()));
+
+        try {
+            RegistryBinding binding = bindingManager.searchRegistryBinding(serviceBindingId);
+            fail("Deleted binding still exists in storage.");
+        } catch (ResourceNotFoundException ex) {}
+
+        assertTrue("Referenced service instance does not exist anymore after binding delete.", instanceManager.get(serviceInstanceId).isPresent());
+    }
+
+    public void unregisterBroker(int alreadyActiveBrokers, String brokerId, boolean hasActiveInstances) {
+        // Unregister an existing broker and check pre and post conditions
+        if (alreadyActiveBrokers < 1)
+            throw new IllegalArgumentException("alreadyActiveBrokers must be one or bigger.");
+        assertTrue("There are more or less active service brokers than the expected " + alreadyActiveBrokers + ".",
+                countExistingObjects(alreadyActiveBrokers, sbManager.getAll().iterator()));
+
+        ResponseEntity<?> sbResponse = null;
+        try {
+            sbResponse = TestRequestService.unregisterTestServiceBroker(brokerId);
+        } catch (HttpClientErrorException ex) {
+            sbResponse = new ResponseEntity<>(ex.getResponseBodyAsString(), ex.getStatusCode());
+            assertSame("Response code is not 412 when unregistering a service broker, which has active instances",
+                    sbResponse.getStatusCode(), HttpStatus.PRECONDITION_FAILED);
+            return;
+        }
+        assertSame("Response code is not 204 when unregistering a service broker",
+                sbResponse.getStatusCode(), HttpStatus.NO_CONTENT);
+        assertTrue("There are more or less active service brokers than the expected " + (alreadyActiveBrokers - 1) + ".",
+                countExistingObjects(alreadyActiveBrokers - 1, sbManager.getAll().iterator()));
     }
 
     // #### | Helper methods | ####

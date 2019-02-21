@@ -65,6 +65,7 @@ public class ServiceBrokerMockClient {
         mockCatalogRequest(catalogResponse);
         mockProvisionInstance(TEST_INSTANCE_1, instanceRequest);
         mockProvisionInstance(TEST_INSTANCE_2, instanceRequest);
+
         mockBinding(TEST_INSTANCE_1, TEST_BINDING_1, binding1Request);
         mockBinding(TEST_INSTANCE_1, TEST_BINDING_2, binding1Request);
         mockBinding(TEST_INSTANCE_2, TEST_BINDING_3, binding1Request);
@@ -73,6 +74,16 @@ public class ServiceBrokerMockClient {
         mockBinding(TEST_INSTANCE_1, TEST_BINDING_OF_SHARED_2, binding1Request);
         mockBinding(TEST_INSTANCE_2, TEST_BINDING_OF_SHARED_3, binding1Request);
         mockBinding(TEST_INSTANCE_2, TEST_BINDING_OF_SHARED_4, binding1Request);
+
+        mockUnbinding(TEST_INSTANCE_1, TEST_BINDING_1);
+        mockUnbinding(TEST_INSTANCE_1, TEST_BINDING_2);
+        mockUnbinding(TEST_INSTANCE_2, TEST_BINDING_3);
+        mockUnbinding(TEST_INSTANCE_2, TEST_BINDING_4);
+        mockUnbinding(TEST_INSTANCE_1, TEST_BINDING_OF_SHARED_1);
+        mockUnbinding(TEST_INSTANCE_1, TEST_BINDING_OF_SHARED_2);
+        mockUnbinding(TEST_INSTANCE_2, TEST_BINDING_OF_SHARED_3);
+        mockUnbinding(TEST_INSTANCE_2, TEST_BINDING_OF_SHARED_4);
+
         mockUnprovisioning(TEST_INSTANCE_1);
         mockUnprovisioning(TEST_INSTANCE_2);
     }
@@ -152,14 +163,41 @@ public class ServiceBrokerMockClient {
     }
 
     public static void mockUnprovisioning(String instanceId) {
-        String definitonId = serviceBrokerMock.getDefinition().getId();
+        String definitionId = serviceBrokerMock.getDefinition().getId();
         String planId = serviceBrokerMock.getPlan().getId();
         new MockServerClient(SERVICE_BROKER_HOST, SERVICE_BROKER_PORT)
                 .when(
                         HttpRequest.request()
                                 .withMethod("DELETE")
                                 .withPath("/v2/service_instances/" + instanceId)
-                                .withQueryStringParameter("service_id", definitonId)
+                                .withQueryStringParameter("service_id", definitionId)
+                                .withQueryStringParameter("plan_id", planId)
+                                .withHeaders(new Header("Authorization", getServiceBrokerBasicAuthToken()),
+                                        new Header("X-Broker-API-Version", SERVICE_BROKER_API_VERSION),
+                                        new Header("X-Broker-API-Originating-Identity", SERVICE_BROKER_ORIGINATING_IDENTITY)
+                                ),
+                        Times.exactly(1)
+                )
+                .respond(
+                        HttpResponse.response()
+                                .withStatusCode(200)
+                                .withHeaders(
+                                        new Header("Content-Type", "application/json; charset=utf-8"),
+                                        new Header("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
+                                .withBody("{}")
+                                .withDelay(TimeUnit.SECONDS, 1)
+                );
+    }
+
+    public static void mockUnbinding(String instanceId, String bindingId) throws JsonProcessingException {
+        String definitionId = serviceBrokerMock.getDefinition().getId();
+        String planId = serviceBrokerMock.getPlan().getId();
+        new MockServerClient(SERVICE_BROKER_HOST, SERVICE_BROKER_PORT)
+                .when(
+                        HttpRequest.request()
+                                .withMethod("DELETE")
+                                .withPath("/v2/service_instances/" + instanceId + "/service_bindings/" + bindingId)
+                                .withQueryStringParameter("service_id", definitionId)
                                 .withQueryStringParameter("plan_id", planId)
                                 .withHeaders(new Header("Authorization", getServiceBrokerBasicAuthToken()),
                                         new Header("X-Broker-API-Version", SERVICE_BROKER_API_VERSION),

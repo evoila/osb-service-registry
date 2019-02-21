@@ -2,6 +2,7 @@ package de.evoila.osb.service.registry.util;
 
 import de.evoila.cf.broker.model.*;
 import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
+import de.evoila.osb.service.registry.web.bodies.ServiceBrokerCreate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,10 +34,10 @@ public class TestRequestService {
                 CatalogResponse.class);
     }
 
-    public static ResponseEntity<String> registerTestServiceBroker() {
+    public static ResponseEntity<String> registerTestServiceBroker(ServiceBrokerCreate create) {
         return restTemplate.exchange(URL + "/brokers",
                 HttpMethod.POST,
-                new HttpEntity<>(ServiceBrokerMockClient.getServiceBrokerCreate(), headers),
+                new HttpEntity<>(create, headers),
                 String.class);
     }
 
@@ -71,5 +72,22 @@ public class TestRequestService {
                 HttpMethod.DELETE,
                 new HttpEntity<>(null, headers),
                 JobProgress.class);
+    }
+
+    public static ResponseEntity<JobProgress> unbind(String instanceId, String bindingId, String definitionId, String planId) {
+        return restTemplate.exchange(
+                URL+"/v2/service_instances/"+instanceId+"/service_bindings/"+bindingId+"?accepts_incomplete=false&service_id="+definitionId+"&plan_id="+planId,
+                HttpMethod.DELETE,
+                new HttpEntity<>(null, headers),
+                JobProgress.class);
+    }
+
+    public static ResponseEntity<?> unregisterTestServiceBroker(String brokerId) {
+        return restTemplate.exchange(
+                URL + "/brokers/" + brokerId,
+                HttpMethod.DELETE,
+                new HttpEntity<>(null, headers),
+                String.class
+        );
     }
 }
