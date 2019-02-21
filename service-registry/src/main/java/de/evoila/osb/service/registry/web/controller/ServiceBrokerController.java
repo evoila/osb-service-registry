@@ -6,6 +6,7 @@ import de.evoila.osb.service.registry.exceptions.InUseException;
 import de.evoila.osb.service.registry.exceptions.InvalidFieldException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.manager.ServiceBrokerManager;
+import de.evoila.osb.service.registry.manager.ServiceDefinitionCacheManager;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.util.Cryptor;
 import de.evoila.osb.service.registry.web.bodies.ServiceBrokerCreate;
@@ -24,15 +25,17 @@ import javax.validation.Valid;
 @RepositoryRestController
 public class ServiceBrokerController extends BaseController {
 
-    private Logger log = LoggerFactory.getLogger(ServiceBrokerController.class);
+    private static Logger log = LoggerFactory.getLogger(ServiceBrokerController.class);
 
     private ServiceBrokerManager serviceBrokerManager;
     private ServiceBrokerRepository serviceBrokerRepository;
+    private ServiceDefinitionCacheManager cacheManager;
     private Cryptor cryptor;
 
-    public ServiceBrokerController(ServiceBrokerManager serviceBrokerManager, ServiceBrokerRepository serviceBrokerRepository, Cryptor cryptor) {
+    public ServiceBrokerController(ServiceBrokerManager serviceBrokerManager, ServiceBrokerRepository serviceBrokerRepository, ServiceDefinitionCacheManager cacheManager, Cryptor cryptor) {
         this.serviceBrokerManager = serviceBrokerManager;
         this.serviceBrokerRepository = serviceBrokerRepository;
+        this.cacheManager = cacheManager;
         this.cryptor = cryptor;
     }
 
@@ -76,8 +79,6 @@ public class ServiceBrokerController extends BaseController {
         return new ResponseEntity<Resource<ServiceBroker>>(buildLink(serviceBroker), HttpStatus.OK);
     }
 
-
-
     @DeleteMapping (value = "/brokers/{brokerId}")
     public ResponseEntity<?> deleteServiceBroker(@PathVariable String brokerId) throws ResourceNotFoundException, InvalidFieldException {
         log.info("Received service broker deletion request.");
@@ -87,6 +88,7 @@ public class ServiceBrokerController extends BaseController {
             throw new InUseException("There are still active service instances in existence. Deprovision them before deleting the service broker.");
 
         serviceBrokerManager.remove(serviceBroker);
+        cacheManager.remove(serviceBroker.getId());
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
