@@ -12,6 +12,8 @@ import org.junit.runners.Suite;
         ServiceBrokerManagerTest.class,
         RegistryBindingManagerTest.class,
         RegistryServiceInstanceManagerTest.class,
+        ApplicationContextTest.class,
+        ConfigurationTest.class,
         SharingTest.class
 })
 public class AllTests {
