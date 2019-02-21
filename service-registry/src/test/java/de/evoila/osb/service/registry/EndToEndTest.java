@@ -1,4 +1,4 @@
-package de.evoila.osb.service.registry.complex;
+package de.evoila.osb.service.registry;
 
 import de.evoila.cf.broker.model.*;
 import de.evoila.cf.broker.model.catalog.ServiceDefinition;
@@ -40,7 +40,7 @@ import static org.junit.Assert.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @EnableAutoConfiguration
-public class SharingTest {
+public class EndToEndTest {
 
     private static MockServer mockServer;
     private static ServiceBrokerMockClient sbMock;

@@ -1,6 +1,5 @@
 package de.evoila.osb.service.registry;
 
-import de.evoila.osb.service.registry.complex.SharingTest;
 import de.evoila.osb.service.registry.manager.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -14,7 +13,7 @@ import org.junit.runners.Suite;
         RegistryServiceInstanceManagerTest.class,
         ApplicationContextTest.class,
         ConfigurationTest.class,
-        SharingTest.class
+        EndToEndTest.class
 })
 public class AllTests {
 
