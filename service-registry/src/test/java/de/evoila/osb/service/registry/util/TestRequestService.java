@@ -1,7 +1,6 @@
 package de.evoila.osb.service.registry.util;
 
-import de.evoila.cf.broker.model.ServiceInstanceRequest;
-import de.evoila.cf.broker.model.ServiceInstanceResponse;
+import de.evoila.cf.broker.model.*;
 import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
@@ -49,7 +48,14 @@ public class TestRequestService {
         );
     }
 
-    public static ResponseEntity<Void> setShared(boolean share, String instanceId) {
+    public static ResponseEntity<ServiceInstanceBindingResponse> bind(String instanceId, String bindingId, ServiceInstanceBindingRequest bindingRequest) {
+        return restTemplate.exchange(URL + "/v2/service_instances/" + instanceId + "/service_bindings/" + bindingId + "?accepts_incomplete=false",
+                HttpMethod.PUT,
+                new HttpEntity<ServiceInstanceBindingRequest>(bindingRequest, headers),
+                ServiceInstanceBindingResponse.class);
+    }
+
+    public static ResponseEntity<?> setShared(boolean share, String instanceId) {
         HttpEntity entity = new HttpEntity<>(null, headers);
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         RestTemplate restTemplate = new RestTemplate(requestFactory);
@@ -57,5 +63,13 @@ public class TestRequestService {
                 HttpMethod.PATCH,
                 new HttpEntity<>(null, headers),
                 Void.class);
+    }
+
+    public static ResponseEntity<JobProgress> unprovisionInstance(String instanceId, String definitionId, String planId){
+        return restTemplate.exchange(
+                URL + "/v2/service_instances/" + instanceId + "?accepts_incomplete=false&service_id="+definitionId+"&plan_id="+planId,
+                HttpMethod.DELETE,
+                new HttpEntity<>(null, headers),
+                JobProgress.class);
     }
 }

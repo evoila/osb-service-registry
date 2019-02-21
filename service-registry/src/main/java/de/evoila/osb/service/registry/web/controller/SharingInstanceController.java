@@ -49,7 +49,7 @@ public class SharingInstanceController extends BaseController {
         ServiceBroker serviceBroker = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId, HttpStatus.NOT_FOUND);
         RegistryServiceInstance serviceInstance = serviceBroker.getServiceInstance(serviceInstanceId).get();
         ServiceDefinition definition = cacheManager.getDefinition(serviceInstance.getBroker().getId()
-                , serviceInstance.isOriginalInstance() ? serviceInstance.getServiceDefinitionId() : serviceInstance.getSharedContext().getServiceDefinitionId());
+                , serviceInstance.getServiceDefinitionIdForServiceBroker());
 
         SharedContext sharedContext = serviceInstance.getSharedContext();
         if (sharedContext == null) sharedContext = new SharedContext();
