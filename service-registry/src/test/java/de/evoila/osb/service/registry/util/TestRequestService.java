@@ -17,7 +17,8 @@ public class TestRequestService {
     public static HttpHeaders headers = new HttpHeaders();
     @LocalServerPort
     public static final int PORT = 8080;
-    public static final String URL = "http://127.0.0.1:" + PORT;
+    public static final String HOST = "http://127.0.0.1";
+    public static final String URL =  HOST + ":" + PORT;
 
     public static void initHeaders() {
         headers = new HttpHeaders();
@@ -66,9 +67,9 @@ public class TestRequestService {
                 Void.class);
     }
 
-    public static ResponseEntity<JobProgress> unprovisionInstance(String instanceId, String definitionId, String planId){
+    public static ResponseEntity<JobProgress> unprovisionInstance(String instanceId, String definitionId, String planId) {
         return restTemplate.exchange(
-                URL + "/v2/service_instances/" + instanceId + "?accepts_incomplete=false&service_id="+definitionId+"&plan_id="+planId,
+                URL + "/v2/service_instances/" + instanceId + "?accepts_incomplete=false&service_id=" + definitionId + "&plan_id=" + planId,
                 HttpMethod.DELETE,
                 new HttpEntity<>(null, headers),
                 JobProgress.class);
@@ -76,7 +77,7 @@ public class TestRequestService {
 
     public static ResponseEntity<JobProgress> unbind(String instanceId, String bindingId, String definitionId, String planId) {
         return restTemplate.exchange(
-                URL+"/v2/service_instances/"+instanceId+"/service_bindings/"+bindingId+"?accepts_incomplete=false&service_id="+definitionId+"&plan_id="+planId,
+                URL + "/v2/service_instances/" + instanceId + "/service_bindings/" + bindingId + "?accepts_incomplete=false&service_id=" + definitionId + "&plan_id=" + planId,
                 HttpMethod.DELETE,
                 new HttpEntity<>(null, headers),
                 JobProgress.class);

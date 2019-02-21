@@ -48,18 +48,18 @@ public class ServiceBrokerMockClient {
 
     public static final String CATALOG_FILE_PATH = "./src/test/resources/example-catalog.json";
 
+    private static final int REQUEST_DELAY = 200;
+
     private static ServiceBrokerMockClient serviceBrokerMock;
 
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static void mockServiceBroker() throws IOException {
-        CatalogResponse catalogResponse = mapper.readValue(new File(CATALOG_FILE_PATH), CatalogResponse.class);
+    public static void mockServiceBroker(String catalogFilePath) throws IOException {
+        CatalogResponse catalogResponse = mapper.readValue(new File(catalogFilePath), CatalogResponse.class);
         ServiceBrokerMockClient sbMock = getServiceBrokerMock();
         sbMock.setupMock(catalogResponse.getServices(), SERVICE_BROKER_ORG, SERVICE_BROKER_SPACE);
 
         ServiceInstanceRequest instanceRequest = getServiceInstanceRequest(sbMock);
-        ServiceInstanceRequest sharedInstance1Request = getSharedServiceInstanceRequest(sbMock, TEST_INSTANCE_1);
-        ServiceInstanceRequest sharedInstance2Request = getSharedServiceInstanceRequest(sbMock, TEST_INSTANCE_2);
         ServiceInstanceBindingRequest binding1Request = getBindingRequest(sbMock);
 
         mockCatalogRequest(catalogResponse);
@@ -74,18 +74,6 @@ public class ServiceBrokerMockClient {
         mockBinding(TEST_INSTANCE_1, TEST_BINDING_OF_SHARED_2, binding1Request);
         mockBinding(TEST_INSTANCE_2, TEST_BINDING_OF_SHARED_3, binding1Request);
         mockBinding(TEST_INSTANCE_2, TEST_BINDING_OF_SHARED_4, binding1Request);
-
-        mockUnbinding(TEST_INSTANCE_1, TEST_BINDING_1);
-        mockUnbinding(TEST_INSTANCE_1, TEST_BINDING_2);
-        mockUnbinding(TEST_INSTANCE_2, TEST_BINDING_3);
-        mockUnbinding(TEST_INSTANCE_2, TEST_BINDING_4);
-        mockUnbinding(TEST_INSTANCE_1, TEST_BINDING_OF_SHARED_1);
-        mockUnbinding(TEST_INSTANCE_1, TEST_BINDING_OF_SHARED_2);
-        mockUnbinding(TEST_INSTANCE_2, TEST_BINDING_OF_SHARED_3);
-        mockUnbinding(TEST_INSTANCE_2, TEST_BINDING_OF_SHARED_4);
-
-        mockUnprovisioning(TEST_INSTANCE_1);
-        mockUnprovisioning(TEST_INSTANCE_2);
     }
 
     public static void mockCatalogRequest(CatalogResponse catalogResponse) throws JsonProcessingException {
@@ -104,7 +92,7 @@ public class ServiceBrokerMockClient {
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
                                 .withBody(mapper.writeValueAsString(catalogResponse))
-                                .withDelay(TimeUnit.SECONDS, 1)
+                                .withDelay(TimeUnit.MILLISECONDS, REQUEST_DELAY)
 
                 );
     }
@@ -130,8 +118,10 @@ public class ServiceBrokerMockClient {
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
                                 .withBody(mapper.writeValueAsString(response))
-                                .withDelay(TimeUnit.SECONDS, 1)
+                                .withDelay(TimeUnit.MILLISECONDS, REQUEST_DELAY)
                 );
+
+        mockUnprovisioning(instanceId);
     }
 
     public static void mockBinding(String instanceId, String bindingId, ServiceInstanceBindingRequest bindingRequest) throws JsonProcessingException {
@@ -158,8 +148,9 @@ public class ServiceBrokerMockClient {
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
                                 .withBody(mapper.writeValueAsString(response))
-                                .withDelay(TimeUnit.SECONDS, 1)
+                                .withDelay(TimeUnit.MILLISECONDS, REQUEST_DELAY)
                 );
+        mockUnbinding(instanceId, bindingId);
     }
 
     public static void mockUnprovisioning(String instanceId) {
@@ -185,7 +176,7 @@ public class ServiceBrokerMockClient {
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
                                 .withBody("{}")
-                                .withDelay(TimeUnit.SECONDS, 1)
+                                .withDelay(TimeUnit.MILLISECONDS, REQUEST_DELAY)
                 );
     }
 
@@ -212,7 +203,7 @@ public class ServiceBrokerMockClient {
                                         new Header("Content-Type", "application/json; charset=utf-8"),
                                         new Header("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"))
                                 .withBody("{}")
-                                .withDelay(TimeUnit.SECONDS, 1)
+                                .withDelay(TimeUnit.MILLISECONDS, REQUEST_DELAY)
                 );
     }
 

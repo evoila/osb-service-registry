@@ -66,7 +66,7 @@ public class SharingTest {
         TestRequestService.initHeaders();
         mockServer = new MockServer(MockServer.SHARE, 8081);
         mockServer.startServer();
-        ServiceBrokerMockClient.mockServiceBroker();
+        ServiceBrokerMockClient.mockServiceBroker(ServiceBrokerMockClient.CATALOG_FILE_PATH);
         sbMock = ServiceBrokerMockClient.getServiceBrokerMock();
     }
 
@@ -191,8 +191,6 @@ public class SharingTest {
         checkCatalog(true, false);
         checkEmptyStorage();
 
-        // TODO:
-        // - binding functionality to test
     }
 
     public void checkAutowiring() {
@@ -206,12 +204,12 @@ public class SharingTest {
     }
 
     public void checkEmptyStorage() {
-        assertTrue("", instanceManager.count() == 0);
-        assertTrue("", sbManager.count() == 0);
-        assertTrue("", definitionCacheManager.getUnmodifiableDefinitions().isEmpty());
-        assertTrue("", bindingManager.count() == 0);
-        assertTrue("", sharedInstancesManager.getSharedServiceInstances().isEmpty());
-//        assertTrue("", );
+        assertTrue("There are registry service instances, but should not.", instanceManager.count() == 0);
+        assertTrue("There are service brokers, but should not.", sbManager.count() == 0);
+        assertTrue("There are service definitions cached, but should not.", definitionCacheManager.getUnmodifiableDefinitions().isEmpty());
+        assertTrue("There are registry bindings, but should not.", bindingManager.count() == 0);
+        assertTrue("There are shared service instances, but should not.", sharedInstancesManager.getSharedServiceInstances().isEmpty());
+        assertTrue("There are shared contexts, but should not.", sharedContextManager.count() == 0);
     }
 
     public ResponseEntity<CatalogResponse> checkCatalog(boolean hasToBeEmpty, boolean sharedDefinitionExists) {
