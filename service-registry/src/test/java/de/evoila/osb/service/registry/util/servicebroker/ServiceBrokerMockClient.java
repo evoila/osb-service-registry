@@ -1,4 +1,4 @@
-package de.evoila.osb.service.registry.util;
+package de.evoila.osb.service.registry.util.servicebroker;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

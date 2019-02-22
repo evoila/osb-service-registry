@@ -1,4 +1,4 @@
-package de.evoila.osb.service.registry.util;
+package de.evoila.osb.service.registry.util.servicebroker;
 
 import de.evoila.cf.broker.model.*;
 import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
