@@ -111,7 +111,7 @@ public class EndToEndTest {
         String serviceDefinitionId = instanceRequest.getServiceDefinitionId();
         String planId = instanceRequest.getPlanId();
 
-        // Check the availability of all services and managers
+        // Check the availability of used services and managers
         checkAutowiring();
 
         // Check pre conditions

@@ -93,8 +93,8 @@ public class SharedInstancesManager {
         sharedDefinition.setName(SHARED_DEFINITIONS_NAME);
         sharedDefinition.setDescription(SHARED_DEFINITIONS_DESCRIPTION);
         sharedDefinition.setBindable(true);
-        sharedDefinition.setInstancesRetrievable(false);
-        sharedDefinition.setBindingsRetrievable(false);
+        sharedDefinition.setInstancesRetrievable(true);
+        sharedDefinition.setBindingsRetrievable(true);
         sharedDefinition.setPlans(new LinkedList<>());
         return sharedDefinition;
     }
