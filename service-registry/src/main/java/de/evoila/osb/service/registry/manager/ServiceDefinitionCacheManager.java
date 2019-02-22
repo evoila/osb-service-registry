@@ -1,6 +1,8 @@
 package de.evoila.osb.service.registry.manager;
 
 import de.evoila.cf.broker.model.catalog.ServiceDefinition;
+import de.evoila.cf.broker.model.catalog.plan.Plan;
+import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -64,5 +66,13 @@ public class ServiceDefinitionCacheManager {
             if (definition != null) return definition;
         }
         return null;
+    }
+
+    public synchronized Plan getPlan(String definitionId, String planId) throws ResourceNotFoundException {
+        ServiceDefinition definition = getDefinition(definitionId);
+        for (Plan plan : definition.getPlans()) {
+            if (plan.getId().equals(planId)) return plan;
+        }
+        throw new ResourceNotFoundException("plan");
     }
 }
