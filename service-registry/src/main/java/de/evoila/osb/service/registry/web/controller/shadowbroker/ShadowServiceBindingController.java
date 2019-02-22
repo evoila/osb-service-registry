@@ -94,6 +94,7 @@ public class ShadowServiceBindingController extends BaseController {
 
             log.debug("Last operation returned with 410 (GONE) -> deleting the binding.");
             bindingManager.remove(binding);
+            binding.getServiceInstance().getBindings().remove(binding);
             return new ResponseEntity<String>("", HttpStatus.GONE);
         }
 
