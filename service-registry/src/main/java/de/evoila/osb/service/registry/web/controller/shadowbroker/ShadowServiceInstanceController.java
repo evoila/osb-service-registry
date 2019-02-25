@@ -216,6 +216,8 @@ public class ShadowServiceInstanceController extends BaseController {
 
         ResponseWithHttpStatus<ServiceInstanceUpdateResponse> response = ServiceInstanceRequestService.updateServiceInstance(
                 sb, serviceInstance.getIdForServiceBroker(), apiVersion, originatingIdentity, acceptsIncomplete, request);
+        if (response.getBody() != null && response.getBody().getDashboardUrl() != null)
+            serviceInstance.setDashboardUrl(response.getBody().getDashboardUrl());
 
         return new ResponseEntity<>(response.getBody(), response.getStatus());
     }
