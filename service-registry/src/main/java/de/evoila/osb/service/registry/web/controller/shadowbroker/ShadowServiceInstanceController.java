@@ -4,6 +4,7 @@ import de.evoila.cf.broker.model.JobProgressResponse;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceRequest;
 import de.evoila.cf.broker.model.ServiceInstanceResponse;
+import de.evoila.osb.service.registry.exceptions.AlreadyExistingException;
 import de.evoila.osb.service.registry.exceptions.InUseException;
 import de.evoila.osb.service.registry.exceptions.NotSharedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
@@ -128,9 +129,12 @@ public class ShadowServiceInstanceController extends BaseController {
             @RequestParam(value = "accepts_incomplete", required = false, defaultValue = "false") Boolean acceptsIncomplete,
             @RequestHeader("X-Broker-API-Version") String apiVersion,
             @RequestHeader(value = "X-Broker-API-Originating-Identity", required = false) String originatingIdentity,
-            @Valid @RequestBody ServiceInstanceRequest request) throws ResourceNotFoundException, NotSharedException {
+            @Valid @RequestBody ServiceInstanceRequest request) throws ResourceNotFoundException, NotSharedException, AlreadyExistingException {
 
         log.info("Received shadow service broker create service instance request.");
+
+        if (serviceInstanceManager.exists(serviceInstanceId))
+            throw new AlreadyExistingException("A service instance with the id "+serviceInstanceId+" already exists.");
 
         if (request.getServiceDefinitionId().equals(SharedInstancesManager.SHARED_DEFINITIONS_ID))
             return handleSharedInstance(serviceInstanceId, acceptsIncomplete, apiVersion, originatingIdentity, request);

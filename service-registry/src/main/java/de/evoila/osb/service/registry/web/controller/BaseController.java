@@ -125,6 +125,11 @@ public class BaseController {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse(ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(AlreadyExistingException.class)
+    public ResponseEntity<?> handleAlreadyExistingException(AlreadyExistingException ex, HttpServletResponse response) {
+        return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception ex, HttpServletResponse response) {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse("An unexpected error occured: '" + ex.getMessage() + "'"), HttpStatus.INTERNAL_SERVER_ERROR);

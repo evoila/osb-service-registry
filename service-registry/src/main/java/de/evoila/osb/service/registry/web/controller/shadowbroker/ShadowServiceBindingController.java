@@ -4,6 +4,7 @@ import de.evoila.cf.broker.model.JobProgressResponse;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingRequest;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
+import de.evoila.osb.service.registry.exceptions.AlreadyExistingException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.exceptions.SharedContextInvalidException;
 import de.evoila.osb.service.registry.manager.*;
@@ -128,9 +129,12 @@ public class ShadowServiceBindingController extends BaseController {
             @RequestHeader(value = "X-Broker-API-Originating-Identity", required = false) String originatingIdentity,
             @RequestParam(value = "accepts_incomplete", required = false, defaultValue = "false") Boolean acceptsIncomplete,
             @Valid @RequestBody ServiceInstanceBindingRequest request
-    ) throws ResourceNotFoundException, SharedContextInvalidException {
+    ) throws ResourceNotFoundException, SharedContextInvalidException, AlreadyExistingException {
 
         log.info("Received shadow service broker create service binding request.");
+
+        if (bindingManager.exists(serviceBindingId))
+            throw new AlreadyExistingException("A binding with the id "+serviceBindingId+" already exists.");
 
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
         if (!serviceInstance.isOriginalInstance()) {
@@ -181,7 +185,7 @@ public class ShadowServiceBindingController extends BaseController {
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
         RegistryBinding binding = bindingManager.searchRegistryBinding(serviceBindingId);
 
-        if (serviceId != binding.getServiceInstance().getServiceDefinitionId() || planId != binding.getServiceInstance().getPlanId())
+        if (!serviceId.equals(binding.getServiceInstance().getServiceDefinitionId()) || !planId.equals(binding.getServiceInstance().getPlanId()))
             throw new ResourceNotFoundException("service binding", HttpStatus.GONE);
 
         if (!binding.isBindingOf(serviceInstance))
