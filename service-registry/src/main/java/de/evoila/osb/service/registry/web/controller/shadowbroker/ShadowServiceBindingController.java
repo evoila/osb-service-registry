@@ -94,7 +94,6 @@ public class ShadowServiceBindingController extends BaseController {
 
             log.debug("Last operation returned with 410 (GONE) -> deleting the binding.");
             bindingManager.remove(binding);
-            binding.getServiceInstance().getBindings().remove(binding);
             return new ResponseEntity<String>("", HttpStatus.GONE);
         }
 
@@ -110,7 +109,6 @@ public class ShadowServiceBindingController extends BaseController {
             } else if (state.equals("failed")) {
                 if (binding.isCreationInProgress()) {
                     log.debug("Operation state is 'failed' and creation is in progress -> removing binding from storage.");
-                    serviceInstance.getBindings().remove(binding);
                     bindingManager.remove(binding);
                 } else if (binding.isDeleteInProgress()) {
                     log.debug("Operation state is 'failed' and deletion is in progress -> toggling deletion flag.");
