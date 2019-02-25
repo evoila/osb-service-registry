@@ -3,6 +3,7 @@ package de.evoila.osb.service.registry.manager;
 import de.evoila.osb.service.registry.data.repositories.RegistryBindingRepository;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.service.broker.RegistryBinding;
+import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,11 @@ import java.util.Optional;
 @Service
 public class RegistryBindingManager extends BasicManager<RegistryBinding> {
 
-    private RegistryBindingManager(RegistryBindingRepository registryBindingRepository) {
+    private RegistryServiceInstanceManager instanceManager;
+
+    private RegistryBindingManager(RegistryBindingRepository registryBindingRepository, RegistryServiceInstanceManager instanceManager) {
         super(registryBindingRepository);
+        this.instanceManager = instanceManager;
     }
 
     /**
@@ -39,5 +43,23 @@ public class RegistryBindingManager extends BasicManager<RegistryBinding> {
         if (!binding.isPresent())
             throw new ResourceNotFoundException("service binding", resourceNotFoundExceptionCustomStatusCode);
         return binding.get();
+    }
+
+    @Override
+    public void remove(RegistryBinding binding) {
+        if (binding == null) return;
+        RegistryServiceInstance instance = binding.getServiceInstance();
+        if (instance != null && instance.getBindings() != null) {
+            instance.getBindings().remove(binding);
+            instanceManager.update(instance);
+        }
+        super.remove(binding.getId());
+    }
+
+    @Override
+    public void remove(String id) {
+        Optional<RegistryBinding> binding = get(id);
+        if (binding.isPresent())
+            remove(binding.get());
     }
 }
