@@ -152,7 +152,9 @@ public class ShadowServiceBindingController extends BaseController {
         // This can be caused by an additional async create call for an already existing binding in creation progress (See OSB specification for async binding creation).
         if (!bindingManager.exists(serviceBindingId)) {
             String appGuid = request.getAppGuid() == null ? request.getBindResource().getAppGuid() : request.getAppGuid();
-            RegistryBinding binding = new RegistryBinding(serviceBindingId, appGuid, request.getBindResource().getRoute(), false, false, serviceInstance);
+            String route = "";
+            if (request.getBindResource() != null && request.getBindResource().getRoute() != null) route = request.getBindResource().getRoute();
+            RegistryBinding binding = new RegistryBinding(serviceBindingId, appGuid, route, false, false, serviceInstance);
             if (acceptsIncomplete && response.getStatus() == HttpStatus.ACCEPTED) {
                 log.debug("Setting creation progress to true for binding: " + serviceBindingId);
                 binding.setCreationInProgress(true);
