@@ -198,8 +198,15 @@ public class ShadowServiceBindingController extends BaseController {
         try {
             response = ServiceBindingRequestService.deleteBinding(sb, serviceInstance.getIdForServiceBroker(), serviceId, serviceBindingId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
         } catch (HttpClientErrorException ex) {
-            log.error("Received a error when trying to delete binding at the service broker " + sb.getLoggingNameString(), ex);
+            if (ex.getStatusCode() == HttpStatus.GONE) {
+                log.debug("Delete request to service broker returned with a 410 GONE -> deleting the binding in the service registry.");
+                bindingManager.remove(binding);
+                return new ResponseEntity<>(null, HttpStatus.GONE);
+            }
+
+            log.error("Received an error when trying to delete binding at the service broker " + sb.getLoggingNameString(), ex);
             throw ex;
+
         }
         log.debug("Request to the service broker returned successful with code " + response.getStatus());
 
