@@ -1,6 +1,9 @@
 package de.evoila.osb.service.registry.web.controller.shadowbroker;
 
-import de.evoila.cf.broker.model.*;
+import de.evoila.cf.broker.model.JobProgressResponse;
+import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.ServiceInstanceRequest;
+import de.evoila.cf.broker.model.ServiceInstanceResponse;
 import de.evoila.osb.service.registry.exceptions.InUseException;
 import de.evoila.osb.service.registry.exceptions.NotSharedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
@@ -171,7 +174,9 @@ public class ShadowServiceInstanceController extends BaseController {
         if (serviceInstanceManager.exists(serviceInstanceId))
             return new ResponseEntity<String>("", HttpStatus.CONFLICT);
 
-        RegistryServiceInstance sharedOfInstance = serviceInstanceManager.searchServiceInstance(request.getPlanId());
+        SharedContext sharedContext = sharedContextManager.findByServiceInstanceId(request.getPlanId());
+        if (sharedContext.getServiceInstances().size() == 0) throw new ResourceNotFoundException("service instance");
+        RegistryServiceInstance sharedOfInstance = sharedContext.getServiceInstances().get(0);
         if (!sharedOfInstance.isShared())
             throw new NotSharedException();
 

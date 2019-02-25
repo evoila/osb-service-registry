@@ -7,6 +7,7 @@ import de.evoila.osb.service.registry.exceptions.NotSharedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
+import de.evoila.osb.service.registry.model.service.broker.SharedContext;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
@@ -122,16 +123,37 @@ public class SharedInstancesManager {
         if (sharedDefinition == null || sharedDefinition.getPlans() == null || instances == null) return;
 
         List<Plan> plans = sharedDefinition.getPlans();
-        for (RegistryServiceInstance instance : instances) {
-            Plan plan = new Plan();
-            plan.setId(instance.getId());
-            plan.setName( "si-" + instance.getSharedContext().getDisplayNameOrDefaultName());
-            plan.setDescription(instance.getSharedContext().getDescription());
-            plan.setFree(false);
-            plan.setPlatform(Platform.EXISTING_SERVICE);
 
-            plans.add(plan);
+        List<SharedContext> alreadyAdded = new LinkedList<>();
+        for (RegistryServiceInstance instance : instances) {
+            if (instance.isOriginalInstance() && instance.getSharedContext() != null) {
+                Optional<Plan> plan = getPlanFromInstance(instance);
+                if (plan.isPresent())
+                    plans.add(plan.get());
+                alreadyAdded.add(instance.getSharedContext());
+            }
         }
 
+        for (RegistryServiceInstance instance : instances) {
+            if (instance.getSharedContext() != null && !alreadyAdded.contains(instance.getSharedContext())) {
+                Optional<Plan> plan = getPlanFromInstance(instance);
+                if (plan.isPresent()) {
+                    plans.add(plan.get());
+                    alreadyAdded.add(instance.getSharedContext());
+                }
+
+            }
+        }
+    }
+
+    public Optional<Plan> getPlanFromInstance(RegistryServiceInstance instance) {
+        if (instance == null || instance.getSharedContext() == null) return Optional.empty();
+        Plan plan = new Plan();
+        plan.setId(instance.getId());
+        plan.setName("si-" + instance.getSharedContext().getDisplayNameOrDefaultName());
+        plan.setDescription(instance.getSharedContext().getDescription());
+        plan.setFree(false);
+        plan.setPlatform(Platform.EXISTING_SERVICE);
+        return Optional.of(plan);
     }
 }
