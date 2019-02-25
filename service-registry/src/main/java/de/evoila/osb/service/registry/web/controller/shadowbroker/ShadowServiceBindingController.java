@@ -180,6 +180,10 @@ public class ShadowServiceBindingController extends BaseController {
 
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
         RegistryBinding binding = bindingManager.searchRegistryBinding(serviceBindingId);
+
+        if (serviceId != binding.getServiceInstance().getServiceDefinitionId() || planId != binding.getServiceInstance().getPlanId())
+            throw new ResourceNotFoundException("service binding", HttpStatus.GONE);
+
         if (!binding.isBindingOf(serviceInstance))
             throw new ResourceNotFoundException("binding", HttpStatus.BAD_REQUEST);
 
