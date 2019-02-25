@@ -12,6 +12,7 @@ import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.model.service.broker.SharedContext;
 import de.evoila.osb.service.registry.web.bodies.CatalogResponse;
 import de.evoila.osb.service.registry.web.bodies.ErrorResponse;
+import de.evoila.osb.service.registry.web.bodies.ShareResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -67,7 +68,7 @@ public class SharingInstanceController extends BaseController {
         log.info("Updating service instance " + serviceInstance.getId() + " in storage.");
         instanceManager.update(serviceInstance);
 
-        return new ResponseEntity<String>("", HttpStatus.OK);
+        return new ResponseEntity<ShareResponse>(new ShareResponse(serviceInstance.isShared(), serviceInstance.getSharedContext().getDisplayNameOrDefaultName()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/brokers/{brokerId}/v2/catalog/shared")
