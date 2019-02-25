@@ -238,6 +238,10 @@ public class ShadowServiceInstanceController extends BaseController {
         log.info("Received shadow service broker delete service instance request.");
 
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(instanceId);
+
+        if (!serviceId.equals(serviceInstance.getServiceDefinitionId()) || !planId.equals(serviceInstance.getPlanId()))
+            throw new ResourceNotFoundException("service instance", HttpStatus.GONE);
+
         if (serviceInstance.getBindings().size() > 0)
             throw new InUseException("There are still active binding in existence. Unbind them before deprovisioning the service instance.");
         if (!sharedInstancesManager.isTheOnlySharedInstance(serviceInstance)) {
