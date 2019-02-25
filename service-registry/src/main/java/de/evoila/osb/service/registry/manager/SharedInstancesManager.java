@@ -149,7 +149,7 @@ public class SharedInstancesManager {
     public Optional<Plan> getPlanFromInstance(RegistryServiceInstance instance) {
         if (instance == null || instance.getSharedContext() == null) return Optional.empty();
         Plan plan = new Plan();
-        plan.setId(instance.getId());
+        plan.setId(instance.getSharedContext().getServiceInstanceId());
         plan.setName("si-" + instance.getSharedContext().getDisplayNameOrDefaultName());
         plan.setDescription(instance.getSharedContext().getDescription());
         plan.setFree(false);
