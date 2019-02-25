@@ -45,7 +45,8 @@ public class BasicManager<T extends Identifiable> {
     }
 
     public void remove(T t) {
-        remove(t.getId());
+        if (t != null)
+            repository.delete(t);
     }
 
     public void remove(String id) {
