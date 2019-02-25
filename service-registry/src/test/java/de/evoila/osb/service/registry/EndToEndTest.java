@@ -235,14 +235,14 @@ public class EndToEndTest {
                 ServiceDefinition sharedDefinition = getSharedDefinition(catalogResponse.getBody());
                 assertTrue("No service definition for shared instances was found after sharing an instance.",
                         sharedDefinition != null);
-                assertTrue("The shared definitons lacks information to ensure proper usage.",
+                assertTrue("The shared definition lacks information to ensure proper usage.",
                         sharedDefinitionHasAllValues(sharedDefinition));
 
                 for (Plan plan : getSharedDefinition(catalogResponse.getBody()).getPlans()) {
-                    assertTrue("No instance was found with for a shared plan for the corresponding id",
-                            instanceManager.get(plan.getId()).isPresent());
+                    assertNotNull("No shared context was found with for a shared plan for the corresponding id",
+                            sharedContextManager.findByServiceInstanceId(plan.getId()));
                     assertTrue("A shared plan does not hold all values or has incorrect ones.",
-                            sharedDefinitionPlanHasCorrectValues(plan, instanceManager.get(plan.getId()).get()));
+                            sharedDefinitionPlanHasCorrectValues(plan, sharedContextManager.findByServiceInstanceId(plan.getId())));
                 }
             }
         }
@@ -506,9 +506,9 @@ public class EndToEndTest {
 
     }
 
-    private boolean sharedDefinitionPlanHasCorrectValues(Plan plan, RegistryServiceInstance instance) {
-        return plan.getId().equals(instance.getId())
-                && plan.getName().equals("si-" + instance.getSharedContext().getDisplayNameOrDefaultName())
+    private boolean sharedDefinitionPlanHasCorrectValues(Plan plan, SharedContext sharedContext) {
+        return plan.getId().equals(sharedContext.getServiceInstanceId())
+                && plan.getName().equals("si-" + sharedContext.getDisplayNameOrDefaultName())
                 && plan.getDescription().contains("Definition:")
                 && plan.getDescription().contains("Org:")
                 && plan.getDescription().contains("Space:")
