@@ -110,6 +110,7 @@ public class EndToEndTest {
         ServiceInstanceBindingRequest bindingRequest = ServiceBrokerMockClient.getBindingRequest(sbMock);
         String serviceDefinitionId = instanceRequest.getServiceDefinitionId();
         String planId = instanceRequest.getPlanId();
+        String sharedServiceDefinitionId = SharedInstancesManager.SHARED_DEFINITIONS_ID;
 
         // Check the availability of used services and managers
         checkAutowiring();
@@ -178,11 +179,11 @@ public class EndToEndTest {
         checkCatalog(false, false);
 
         // Delete bindings of shared instance
-        unbind(2, sharedInstanceId, sharedBinding1Id, serviceDefinitionId, planId);
-        unbind(1, sharedInstanceId, sharedBinding2Id, serviceDefinitionId, planId);
+        unbind(2, sharedInstanceId, sharedBinding1Id, sharedServiceDefinitionId, instanceId);
+        unbind(1, sharedInstanceId, sharedBinding2Id, sharedServiceDefinitionId, instanceId);
 
         // Unprovision shared instance
-        deleteInstance(1, sharedInstanceId, serviceDefinitionId, planId, false);
+        deleteInstance(1, sharedInstanceId, sharedInstanceRequest.getServiceDefinitionId(), sharedInstanceRequest.getPlanId(), false);
 
         // Unregister service broker
         unregisterBroker(1, brokerId, false);
