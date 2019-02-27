@@ -232,7 +232,9 @@ public class ServiceBrokerMockClient {
     }
 
     public static ServiceInstanceBindingRequest getBindingRequest(ServiceBrokerMockClient mock) {
-        return new ServiceInstanceBindingRequest(mock.getDefinition().getId(), mock.getPlan().getId(), "test-app", new BindResource());
+        BindResource bindResource = new BindResource();
+        bindResource.setRoute("");
+        return new ServiceInstanceBindingRequest(mock.getDefinition().getId(), mock.getPlan().getId(), "test-app", bindResource);
     }
 
     public static ServiceBrokerMockClient getServiceBrokerMock() {
