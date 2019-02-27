@@ -48,9 +48,8 @@ public class ConfigurationTest {
 
     @Test
     public void testBaseAuthenticationBean() {
-        assertFalse("Basic auth username is null or empty.", StringUtils.isEmpty(baseAuthenticationBean.getUsername()));
-        assertFalse("Basic auth password is null or empty.", StringUtils.isEmpty(baseAuthenticationBean.getPassword()));
-        assertFalse("Basic auth role is null or empty.", StringUtils.isEmpty(baseAuthenticationBean.getRole()));
+        assertFalse("Basic auth username is null or empty.", StringUtils.isEmpty(baseAuthenticationBean.getAdminUsername()));
+        assertFalse("Basic auth password is null or empty.", StringUtils.isEmpty(baseAuthenticationBean.getAdminPassword()));
     }
 
     @Test
