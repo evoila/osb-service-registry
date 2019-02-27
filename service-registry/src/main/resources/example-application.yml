@@ -32,9 +32,8 @@ spring:
 
 ## Basic Auth Credentials ##
 login:
-  username: user
-  password: password
-  role: USER
+  admin_username: admin
+  admin_password: password
 
 
 
