@@ -8,8 +8,12 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
@@ -33,16 +37,20 @@ public class BasicAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser(baseAuthenticationBean.getAdminUsername())
+        auth.userDetailsService(userDetailsManager());
+    }
+
+    @Bean
+    public UserDetailsManager userDetailsManager() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        UserDetails admin = User
+                .withUsername(baseAuthenticationBean.getAdminUsername())
                 .password(passwordEncoder().encode(baseAuthenticationBean.getAdminPassword()))
-                .roles("ADMIN")
-                .authorities("SERVICES", "MANAGING")
-                .and()
-                .withUser("test")
-                .password(passwordEncoder().encode("test"))
-                .roles("USER)")
-                .authorities("SERVICES");
+                .authorities(MANAGING_AUTHORITY, SERVICES_AUTHORITY)
+                .build();
+        manager.createUser(admin);
+
+        return manager;
     }
 
     @Override
@@ -72,10 +80,11 @@ public class BasicAuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint())
+//                .and()
+//                .cors()
                 .and()
-                .cors()
-                .and()
-                .csrf().disable();
+                .csrf().disable()
+                ;
     }
 
     @Bean
