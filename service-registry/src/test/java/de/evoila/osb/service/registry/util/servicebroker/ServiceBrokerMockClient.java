@@ -26,8 +26,8 @@ public class ServiceBrokerMockClient {
 
     public static final String SERVICE_BROKER_HOST = "127.0.0.1";
     public static final int SERVICE_BROKER_PORT = 8081;
-    public static final String SERVICE_BROKER_USER = "test";
-    public static final String SERVICE_BROKER_PASSWORD = "test";
+    public static final String SERVICE_BROKER_USER = "junittest";
+    public static final String SERVICE_BROKER_PASSWORD = "junittest";
     public static final String SERVICE_BROKER_API_VERSION = "2.14";
     public static final String SERVICE_BROKER_ORIGINATING_IDENTITY = "cloudfoundry faketoken";
     public static final String SERVICE_BROKER_ORG = "test-org";
