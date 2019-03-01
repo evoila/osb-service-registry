@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -96,5 +97,16 @@ public class ApplicationContextTest {
             Object fieldValue = field.get(this);
             assertNotNull("Service, manager or controller " + field.getType() + " " +field.getName() + " is null but should be present.", fieldValue);
         }
+    }
+
+    @Test
+    public void storageInit() {
+        assertTrue("ServiceBrokerManager already has values.", sbManager.count() == 0);
+        assertTrue("InstanceManager already has values.", instanceManager.count() == 0);
+        assertTrue("BindingManager already has values.", bindingManager.count() == 0);
+        assertTrue("CloudContextManager already has values.", cloudContextManager.count() == 0);
+        assertTrue("SiteManager already has values.", siteManager.count() == 0);
+        assertTrue("CompanyManager already has values.", companyManager.count() == 0);
+        assertTrue("SharedContextManager already has values.", sharedContextManager.count() == 0);
     }
 }
