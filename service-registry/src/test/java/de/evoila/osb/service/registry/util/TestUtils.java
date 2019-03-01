@@ -24,11 +24,11 @@ public class TestUtils {
     private static int siteSerialNumber = 0;
 
     public static CloudContext getRandomCloudContext() {
-        return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomBasicAuthToken());
+        return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomLowercaseString(8), getRandomLowercaseString(8), getRandomLowercaseString(8));
     }
 
     public static CloudContext getRandomCloudContext(CloudSite site, Company company) {
-        return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomBasicAuthToken(), site, company);
+        return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomLowercaseString(8), getRandomLowercaseString(8), getRandomLowercaseString(8), site, company);
     }
 
     public static CloudSite getRandomCloudSite() {

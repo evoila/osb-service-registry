@@ -69,7 +69,7 @@ public class BasicAuthSecurityConfig extends WebSecurityConfigurerAdapter {
                                                             "/registryBindings/**",
                                                             "/companies/**",
                                                             "/sharedContexts/**",
-                                                            "/cloudSites/**",
+                                                            "/sites/**",
                                                             "/brokers/**",
                                                             "/cloudContexts/**",
                                                             "/profile/**"
