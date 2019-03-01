@@ -206,9 +206,11 @@ public class ShadowServiceBindingController extends BaseController {
         try {
             response = ServiceBindingRequestService.deleteBinding(sb, serviceInstance.getIdForServiceBroker(), serviceId, serviceBindingId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
         } catch (HttpClientErrorException ex) {
-            if (ex.getStatusCode() == HttpStatus.GONE) {
-                log.debug("Delete request to service broker returned with a 410 GONE -> deleting the binding in the service registry.");
+            if (ex.getStatusCode() == HttpStatus.GONE && binding.isDeleteInProgress()) {
+                log.debug("Delete request to service broker returned with a 410 GONE and binding is marked as in deletion -> deleting the binding in the service registry.");
                 bindingManager.remove(binding);
+                // Returning a 202 ACCEPTED instead of 410 GONE forces the service registry to manage operations, if the platform needs them.
+                // Therefore returning 410 is simpler and the less error prone approach for the service registry.
                 return new ResponseEntity<>(null, HttpStatus.GONE);
             }
 
