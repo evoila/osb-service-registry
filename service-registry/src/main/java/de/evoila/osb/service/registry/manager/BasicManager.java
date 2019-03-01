@@ -45,14 +45,27 @@ public class BasicManager<T extends Identifiable> {
     }
 
     public void remove(T t) {
-        if (t != null)
+        if (t != null) {
+            removeReferencesFromRelatedObjects(t);
             repository.delete(t);
+        }
+
     }
 
     public void remove(String id) {
-        if (exists(id))
+        Optional<T> t = get(id);
+        if (t.isPresent()) {
+            removeReferencesFromRelatedObjects(t.get());
             repository.deleteById(id);
+        }
     }
+
+    /**
+     * Removes all references from other objects to the given object to prevent references onto nothing or not intentional keeping of objects.
+     * ! Note: The BasicManager does not hold this feature by itself since its class T's structure is not known.
+     * ! -> Classes that extend the BasicManager and have information about the class T's structure can implement this feature.
+     */
+    public void removeReferencesFromRelatedObjects(T t) { }
 
     public void removeMultiple(Iterable<? extends T> iterable) {
         repository.deleteAll(iterable);

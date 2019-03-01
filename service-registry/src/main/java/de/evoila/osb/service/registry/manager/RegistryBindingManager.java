@@ -46,20 +46,12 @@ public class RegistryBindingManager extends BasicManager<RegistryBinding> {
     }
 
     @Override
-    public void remove(RegistryBinding binding) {
+    public void removeReferencesFromRelatedObjects(RegistryBinding binding) {
         if (binding == null) return;
         RegistryServiceInstance instance = binding.getServiceInstance();
         if (instance != null && instance.getBindings() != null) {
             instance.getBindings().remove(binding);
             instanceManager.update(instance);
         }
-        super.remove(binding.getId());
-    }
-
-    @Override
-    public void remove(String id) {
-        Optional<RegistryBinding> binding = get(id);
-        if (binding.isPresent())
-            remove(binding.get());
     }
 }

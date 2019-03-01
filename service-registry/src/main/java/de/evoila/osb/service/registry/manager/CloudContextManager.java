@@ -20,7 +20,6 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -91,7 +90,7 @@ public class CloudContextManager extends BasicManager<CloudContext> {
     }
 
     @Override
-    public void remove(CloudContext cloudContext) {
+    public void removeReferencesFromRelatedObjects(CloudContext cloudContext) {
         if (cloudContext == null) return;
         Company company = cloudContext.getCompany();
         if (company != null && company.getContexts() != null) {
@@ -103,14 +102,6 @@ public class CloudContextManager extends BasicManager<CloudContext> {
             site.getContexts().remove(cloudContext);
             siteManager.update(site);
         }
-        super.remove(cloudContext);
-    }
-
-    @Override
-    public void remove(String id) {
-        Optional<CloudContext> cloudContext = get(id);
-        if (cloudContext.isPresent())
-            remove(cloudContext.get());
     }
 
     public Set<String> getTakenUsernames() {
