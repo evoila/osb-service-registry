@@ -50,6 +50,8 @@ public class ConfigurationTest {
     public void testBaseAuthenticationBean() {
         assertFalse("Basic auth username is null or empty.", StringUtils.isEmpty(baseAuthenticationBean.getAdminUsername()));
         assertFalse("Basic auth password is null or empty.", StringUtils.isEmpty(baseAuthenticationBean.getAdminPassword()));
+        assertFalse("Length for generated passwords is smaller than 8.", baseAuthenticationBean.getPasswordLength() < 8);
+        assertFalse("Length for generated users is smaller than 8.", baseAuthenticationBean.getUsernameLength() < 8);
     }
 
     @Test

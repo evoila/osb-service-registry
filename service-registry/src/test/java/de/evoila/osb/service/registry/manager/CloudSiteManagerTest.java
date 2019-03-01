@@ -37,6 +37,8 @@ public class CloudSiteManagerTest {
     @After
     public void dropAllCloudSites() {
         ManagerTestService.dropAll(manager);
+        ManagerTestService.dropAll(contextManager);
+        ManagerTestService.dropAll(sbManager);
     }
 
     @Test
