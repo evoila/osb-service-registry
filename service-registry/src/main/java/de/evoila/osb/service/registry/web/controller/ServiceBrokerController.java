@@ -9,22 +9,20 @@ import de.evoila.osb.service.registry.manager.ServiceBrokerManager;
 import de.evoila.osb.service.registry.manager.ServiceDefinitionCacheManager;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.util.Cryptor;
+import de.evoila.osb.service.registry.util.HateoasBuilder;
 import de.evoila.osb.service.registry.web.bodies.ServiceBrokerCreate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 
 @RepositoryRestController
@@ -36,27 +34,33 @@ public class ServiceBrokerController extends BaseController {
     private ServiceBrokerRepository serviceBrokerRepository;
     private ServiceDefinitionCacheManager cacheManager;
     private Cryptor cryptor;
+    private HateoasBuilder hateoasBuilder;
 
-    public ServiceBrokerController(ServiceBrokerManager serviceBrokerManager, ServiceBrokerRepository serviceBrokerRepository, ServiceDefinitionCacheManager cacheManager, Cryptor cryptor) {
+    public ServiceBrokerController(ServiceBrokerManager serviceBrokerManager, ServiceBrokerRepository serviceBrokerRepository, ServiceDefinitionCacheManager cacheManager, Cryptor cryptor, HateoasBuilder hateoasBuilder) {
         this.serviceBrokerManager = serviceBrokerManager;
         this.serviceBrokerRepository = serviceBrokerRepository;
         this.cacheManager = cacheManager;
         this.cryptor = cryptor;
+        this.hateoasBuilder = hateoasBuilder;
     }
 
     @GetMapping(value = "/brokers")
     public ResponseEntity<?> getServiceBrokers() {
         log.info("Received service broker list request");
-        Map<String, Iterable<ServiceBroker>> brokers = new HashMap<>();
-        brokers.put("brokers", serviceBrokerManager.getAll());
-        return new ResponseEntity<Map<String, Iterable<ServiceBroker>>>(brokers, HttpStatus.OK);
+        List<Resource<ServiceBroker>> serviceBrokerResources = new LinkedList<>();
+        for (ServiceBroker serviceBroker : serviceBrokerManager.getAll()) {
+            serviceBrokerResources.add(hateoasBuilder.buildResource(serviceBroker));
+        }
+        Resources<Resource<ServiceBroker>> resources = new Resources<Resource<ServiceBroker>>(serviceBrokerResources);
+        resources.add(hateoasBuilder.getLinksForCollection(ServiceBrokerController.class, "brokers"));
+        return new ResponseEntity<Resources<Resource<ServiceBroker>>>(resources, HttpStatus.OK);
     }
 
     @GetMapping(value = "/brokers/{brokerId}")
     public ResponseEntity<?> getServiceBroker(@PathVariable String brokerId) throws ResourceNotFoundException, InvalidFieldException {
         log.debug("Received service broker get request");
         ServiceBroker serviceBroker = serviceBrokerManager.getServiceBrokerWithExistenceCheck(brokerId);
-        return new ResponseEntity<ServiceBroker>(serviceBroker, HttpStatus.OK);
+        return new ResponseEntity<Resource<ServiceBroker>>(hateoasBuilder.buildResource(serviceBroker), HttpStatus.OK);
     }
 
     @PostMapping(path = "brokers")
@@ -77,7 +81,7 @@ public class ServiceBrokerController extends BaseController {
             throw new EncryptionException("Could not successfully fulfill the security measures for service brokers, therefore aborting creation.");
         }
 
-        return new ResponseEntity<Resource<ServiceBroker>>(buildResource(serviceBroker), HttpStatus.OK);
+        return new ResponseEntity<Resource<ServiceBroker>>(hateoasBuilder.buildResource(serviceBroker), HttpStatus.OK);
     }
 
     @PutMapping(path = "brokers/{brokerId}")
@@ -97,7 +101,7 @@ public class ServiceBrokerController extends BaseController {
         serviceBrokerManager.update(serviceBroker);
         serviceBrokerManager.updateServiceBrokerCatalog(serviceBroker, true);
 
-        return new ResponseEntity<Resource<ServiceBroker>>(buildResource(serviceBroker), HttpStatus.OK);
+        return new ResponseEntity<Resource<ServiceBroker>>(hateoasBuilder.buildResource(serviceBroker), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "brokers/{brokerId}")
@@ -111,35 +115,5 @@ public class ServiceBrokerController extends BaseController {
         serviceBrokerManager.remove(serviceBroker);
         cacheManager.remove(serviceBroker.getId());
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-    }
-
-    private Resource<ServiceBroker> buildResource(ServiceBroker serviceBroker) {
-        Resource<ServiceBroker> resource = new Resource<>(serviceBroker);
-        resource.add(buildLinks(serviceBroker));
-        return resource;
-    }
-
-    private Iterable<Link> buildLinks(ServiceBroker serviceBroker) {
-        List<Link> links = new LinkedList<>();
-        links.add(ControllerLinkBuilder.linkTo(ServiceBrokerController.class)
-                .slash("brokers")
-                .slash(serviceBroker.getId())
-                .withSelfRel());
-        links.add(ControllerLinkBuilder.linkTo(ServiceBrokerController.class)
-                .slash("brokers")
-                .slash(serviceBroker.getId())
-                .withRel("service-broker"));
-        links.add(ControllerLinkBuilder.linkTo(ServiceBrokerController.class)
-                .slash("brokers")
-                .slash(serviceBroker.getId())
-                .slash("serviceInstances")
-                .withRel("serviceInstances"));
-        links.add(ControllerLinkBuilder.linkTo(ServiceBrokerController.class)
-                .slash("brokers")
-                .slash(serviceBroker.getId())
-                .slash("sites")
-                .withRel("sites"));
-
-        return links;
     }
 }
