@@ -35,6 +35,15 @@ public class VisibilityManager {
         this.sharedInstancesManager = sharedInstancesManager;
     }
 
+    public boolean hasAccessTo(Authentication authentication, ServiceBroker serviceBroker) {
+        try {
+            List<ServiceBroker> brokers = getVisibleServiceBrokersForUser(authentication);
+            if (brokers.contains(serviceBroker)) return true;
+        } catch (NotAuthorizedException e) {
+        }
+        return false;
+    }
+
     private List<ServiceBroker> getVisibleServiceBrokers(CloudContext context) {
         CloudSite site = context.getSite();
         if (site == null || site.getBrokers() == null || site.getBrokers().isEmpty()) return new LinkedList<>();
