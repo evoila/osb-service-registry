@@ -130,6 +130,12 @@ public class BaseController {
         return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(NotAuthorizedException.class)
+    public ResponseEntity<?> handleNotAuthorizedException(NotAuthorizedException ex, HttpServletResponse response) {
+        log.error("A user is no authorized.",ex);
+        return new ResponseEntity<>(new ErrorResponse("The user is not authorized for access."), HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception ex, HttpServletResponse response) {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse("An unexpected error occured: '" + ex.getMessage() + "'"), HttpStatus.INTERNAL_SERVER_ERROR);

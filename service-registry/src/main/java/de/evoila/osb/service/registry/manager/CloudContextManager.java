@@ -1,6 +1,8 @@
 package de.evoila.osb.service.registry.manager;
 
 import de.evoila.osb.service.registry.config.BasicAuthSecurityConfig;
+import de.evoila.osb.service.registry.data.repositories.CloudContextRepository;
+import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.CloudContext;
 import de.evoila.osb.service.registry.model.CloudSite;
 import de.evoila.osb.service.registry.model.Company;
@@ -9,7 +11,6 @@ import de.evoila.osb.service.registry.util.CredentialsGenerator;
 import de.evoila.osb.service.registry.util.Cryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +28,7 @@ public class CloudContextManager extends BasicManager<CloudContext> {
 
     private static Logger log = LoggerFactory.getLogger(CloudContextManager.class);
 
+    private CloudContextRepository repository;
     private BaseAuthenticationBean baseAuthenticationBean;
     private CloudSiteManager siteManager;
     private CompanyManager companyManager;
@@ -34,8 +36,9 @@ public class CloudContextManager extends BasicManager<CloudContext> {
     private UserDetailsManager userDetailsManager;
     private PasswordEncoder passwordEncoder;
 
-    public CloudContextManager(CrudRepository<CloudContext, String> repository, BaseAuthenticationBean baseAuthenticationBean, CloudSiteManager siteManager, CompanyManager companyManager, Cryptor cryptor, UserDetailsManager userDetailsManager, PasswordEncoder passwordEncoder) {
+    public CloudContextManager(CloudContextRepository repository, BaseAuthenticationBean baseAuthenticationBean, CloudSiteManager siteManager, CompanyManager companyManager, Cryptor cryptor, UserDetailsManager userDetailsManager, PasswordEncoder passwordEncoder) {
         super(repository);
+        this.repository = repository;
         this.baseAuthenticationBean = baseAuthenticationBean;
         this.siteManager = siteManager;
         this.companyManager = companyManager;
@@ -127,4 +130,14 @@ public class CloudContextManager extends BasicManager<CloudContext> {
             return null;
         return cryptor.decrypt(context.getSalt(), context.getPassword());
     }
+
+    public CloudContext getContextFromUsername(String username) throws ResourceNotFoundException {
+        CloudContext context = null;
+        if (!StringUtils.isEmpty(username))
+            context = repository.findByUsername(username);
+        if (context == null) throw new ResourceNotFoundException("CloudContext");
+        return context;
+    }
+
+
 }
