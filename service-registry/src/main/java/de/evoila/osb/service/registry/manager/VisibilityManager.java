@@ -6,6 +6,7 @@ import de.evoila.osb.service.registry.exceptions.NotAuthorizedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.CloudContext;
 import de.evoila.osb.service.registry.model.CloudSite;
+import de.evoila.osb.service.registry.model.service.broker.RegistryBinding;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import org.slf4j.Logger;
@@ -36,12 +37,23 @@ public class VisibilityManager {
     }
 
     public boolean hasAccessTo(Authentication authentication, ServiceBroker serviceBroker) {
+        if (authentication == null || serviceBroker == null) return false;
         try {
             List<ServiceBroker> brokers = getVisibleServiceBrokersForUser(authentication);
             if (brokers.contains(serviceBroker)) return true;
         } catch (NotAuthorizedException e) {
         }
         return false;
+    }
+
+    public boolean hasAccessTo(Authentication authentication, RegistryServiceInstance serviceInstance) {
+        if (authentication == null || serviceInstance == null || serviceInstance.getBroker() == null) return false;
+        return hasAccessTo(authentication, serviceInstance.getBroker());
+    }
+
+    public boolean hasAccessTo(Authentication authentication, RegistryBinding binding) {
+        if (authentication == null || binding == null || binding.getServiceInstance() == null) return false;
+        return hasAccessTo(authentication, binding.getServiceInstance());
     }
 
     private List<ServiceBroker> getVisibleServiceBrokers(CloudContext context) {

@@ -4,10 +4,7 @@ import de.evoila.cf.broker.model.JobProgressResponse;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceRequest;
 import de.evoila.cf.broker.model.ServiceInstanceResponse;
-import de.evoila.osb.service.registry.exceptions.AlreadyExistingException;
-import de.evoila.osb.service.registry.exceptions.InUseException;
-import de.evoila.osb.service.registry.exceptions.NotSharedException;
-import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
+import de.evoila.osb.service.registry.exceptions.*;
 import de.evoila.osb.service.registry.manager.*;
 import de.evoila.osb.service.registry.model.ResponseWithHttpStatus;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
@@ -21,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -39,13 +38,15 @@ public class ShadowServiceInstanceController extends BaseController {
     private RegistryServiceInstanceManager serviceInstanceManager;
     private SharedInstancesManager sharedInstancesManager;
     private SharedContextManager sharedContextManager;
+    private VisibilityManager visibilityManager;
 
-    public ShadowServiceInstanceController(ServiceBrokerManager sbManager, ServiceDefinitionCacheManager cacheManager, RegistryServiceInstanceManager serviceInstanceManager, SharedInstancesManager sharedInstancesManager, SharedContextManager sharedContextManager) {
+    public ShadowServiceInstanceController(ServiceBrokerManager sbManager, ServiceDefinitionCacheManager cacheManager, RegistryServiceInstanceManager serviceInstanceManager, SharedInstancesManager sharedInstancesManager, SharedContextManager sharedContextManager, VisibilityManager visibilityManager) {
         this.sbManager = sbManager;
         this.cacheManager = cacheManager;
         this.serviceInstanceManager = serviceInstanceManager;
         this.sharedInstancesManager = sharedInstancesManager;
         this.sharedContextManager = sharedContextManager;
+        this.visibilityManager = visibilityManager;
     }
 
     @GetMapping(value = "/v2/service_instances/{instanceId}/last_operation")
@@ -54,11 +55,14 @@ public class ShadowServiceInstanceController extends BaseController {
             @RequestHeader("X-Broker-API-Version") String apiVersion,
             @RequestParam(value = "service_id", required = false) String serviceDefinitionId,
             @RequestParam(value = "plan_id", required = false) String planId,
-            @RequestParam(value = "operation", required = false) String operation) throws ResourceNotFoundException {
+            @RequestParam(value = "operation", required = false) String operation) throws ResourceNotFoundException, NotAuthorizedException {
 
         log.info("Received shadow service broker service instance last operation request.");
 
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, serviceInstance)) throw new NotAuthorizedException(authentication.getName());
+
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId);
         Map<String, String> queryParams = new HashMap<String, String>();
         if (serviceDefinitionId != null) queryParams.put("service_id", serviceDefinitionId);
@@ -114,10 +118,13 @@ public class ShadowServiceInstanceController extends BaseController {
     @GetMapping(value = "/v2/service_instances/{instanceId}")
     public ResponseEntity<?> fetchServiceInstance(
             @PathVariable("instanceId") String serviceInstanceId,
-            @RequestHeader("X-Broker-API-Version") String apiVersion) throws ResourceNotFoundException {
+            @RequestHeader("X-Broker-API-Version") String apiVersion) throws ResourceNotFoundException, NotAuthorizedException {
 
         log.info("Received shadow service broker service instance fetch request.");
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, serviceInstance)) throw new NotAuthorizedException(authentication.getName());
+
         ServiceBroker serviceBroker = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId, HttpStatus.NOT_FOUND);
         ResponseWithHttpStatus<ServiceInstance> response = ServiceInstanceRequestService.fetchServiceInstance(serviceBroker, serviceInstance.getIdForServiceBroker(), apiVersion);
         return new ResponseEntity<ServiceInstance>(response.getBody(), response.getStatus());
@@ -129,7 +136,7 @@ public class ShadowServiceInstanceController extends BaseController {
             @RequestParam(value = "accepts_incomplete", required = false, defaultValue = "false") Boolean acceptsIncomplete,
             @RequestHeader("X-Broker-API-Version") String apiVersion,
             @RequestHeader(value = "X-Broker-API-Originating-Identity", required = false) String originatingIdentity,
-            @Valid @RequestBody ServiceInstanceRequest request) throws ResourceNotFoundException, NotSharedException, AlreadyExistingException {
+            @Valid @RequestBody ServiceInstanceRequest request) throws ResourceNotFoundException, NotSharedException, AlreadyExistingException, NotAuthorizedException {
 
         log.info("Received shadow service broker create service instance request.");
 
@@ -140,6 +147,8 @@ public class ShadowServiceInstanceController extends BaseController {
             return handleSharedInstance(serviceInstanceId, acceptsIncomplete, apiVersion, originatingIdentity, request);
 
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceDefinitionId(request.getServiceDefinitionId());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, sb)) throw new NotAuthorizedException(authentication.getName());
 
         ResponseWithHttpStatus<ServiceInstanceResponse> response = null;
         try {
@@ -211,11 +220,14 @@ public class ShadowServiceInstanceController extends BaseController {
             @RequestHeader("X-Broker-API-Version") String apiVersion,
             @RequestHeader(value = "X-Broker-API-Originating-Identity", required = false) String originatingIdentity,
             @RequestParam(value = "accepts_incomplete", required = false, defaultValue = "false") Boolean acceptsIncomplete,
-            @Valid @RequestBody ServiceInstanceUpdateRequest request) throws ResourceNotFoundException {
+            @Valid @RequestBody ServiceInstanceUpdateRequest request) throws ResourceNotFoundException, NotAuthorizedException {
 
         log.info("Received shadow service broker update service instance request.");
 
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, serviceInstance)) throw new NotAuthorizedException(authentication.getName());
+
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId);
 
         ResponseWithHttpStatus<ServiceInstanceUpdateResponse> response = ServiceInstanceRequestService.updateServiceInstance(
@@ -233,11 +245,13 @@ public class ShadowServiceInstanceController extends BaseController {
             @RequestHeader(value = "X-Broker-API-Originating-Identity", required = false) String originatingIdentity,
             @RequestParam(value = "accepts_incomplete", required = false, defaultValue = "false") Boolean acceptsIncomplete,
             @RequestParam("service_id") String serviceId,
-            @RequestParam("plan_id") String planId) throws ResourceNotFoundException {
+            @RequestParam("plan_id") String planId) throws ResourceNotFoundException, NotAuthorizedException {
 
         log.info("Received shadow service broker delete service instance request.");
 
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(instanceId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, serviceInstance)) throw new NotAuthorizedException(authentication.getName());
 
         if (!serviceId.equals(serviceInstance.getServiceDefinitionId()) || !planId.equals(serviceInstance.getPlanId()))
             throw new ResourceNotFoundException("service instance", HttpStatus.GONE);
