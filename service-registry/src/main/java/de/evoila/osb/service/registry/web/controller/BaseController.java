@@ -132,8 +132,8 @@ public class BaseController {
 
     @ExceptionHandler(NotAuthorizedException.class)
     public ResponseEntity<?> handleNotAuthorizedException(NotAuthorizedException ex, HttpServletResponse response) {
-        log.error("A user is no authorized.",ex);
-        return new ResponseEntity<>(new ErrorResponse("The user is not authorized for access."), HttpStatus.UNAUTHORIZED);
+        log.error("An unauthorized access was tried.",ex);
+        return new ResponseEntity<>(new ErrorResponse("The user is not authorized for this access."), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)
