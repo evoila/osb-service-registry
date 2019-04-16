@@ -1,5 +1,6 @@
 package de.evoila.osb.service.registry.manager;
 
+import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.catalog.ServiceDefinition;
 import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
@@ -74,5 +75,26 @@ public class ServiceDefinitionCacheManager {
             if (plan.getId().equals(planId)) return plan;
         }
         throw new ResourceNotFoundException("plan");
+    }
+
+    public ServiceDefinition getDummyServiceDefinition() {
+        ServiceDefinition sharedDefinition = new ServiceDefinition();
+        sharedDefinition.setId("empty-service-definition");
+        sharedDefinition.setName("empty-service-definition");
+        sharedDefinition.setDescription("This definition is a dummy definition for when the service registry does not return any visible service definitions for the user and does not hold any other value. Creating an instance will not work!");
+        sharedDefinition.setBindable(false);
+        sharedDefinition.setInstancesRetrievable(false);
+        sharedDefinition.setBindingsRetrievable(false);
+        sharedDefinition.setPlans(new LinkedList<>());
+
+        Plan plan = new Plan();
+        plan.setId("dummy-plan");
+        plan.setName("dummy-plan");
+        plan.setDescription("This service plan is a dummy plan for the dummy service definition. Do NOT try to provision an instance with this plan.");
+        plan.setFree(true);
+        plan.setPlatform(Platform.EXISTING_SERVICE);
+
+        sharedDefinition.getPlans().add(plan);
+        return sharedDefinition;
     }
 }

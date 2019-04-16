@@ -54,6 +54,12 @@ public class ShadowCatalogController extends BaseController {
         if (sharedDefinition.getPlans() != null && sharedDefinition.getPlans().size() > 0)
             returnedDefinitions.add(sharedDefinition);
 
+        if (returnedDefinitions.isEmpty()) {
+            log.debug("No visible service definitions for the user "+authentication.getName()+". Returning a dummy service definition to prevent blockage of the response by the plattform.");
+            returnedDefinitions.add(cacheManager.getDummyServiceDefinition());
+        }
+
+
         CatalogResponse response = new CatalogResponse(returnedDefinitions);
         log.debug("Built new catalog response: " + response.toString());
         return new ResponseEntity<CatalogResponse>(response, HttpStatus.OK);

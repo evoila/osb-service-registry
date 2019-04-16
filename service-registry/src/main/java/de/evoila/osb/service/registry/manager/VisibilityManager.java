@@ -58,8 +58,10 @@ public class VisibilityManager {
 
     private List<ServiceBroker> getVisibleServiceBrokers(CloudContext context) {
         CloudSite site = context.getSite();
-        if (site == null || site.getBrokers() == null || site.getBrokers().isEmpty()) return new LinkedList<>();
-        return site.getBrokers();
+        LinkedList<ServiceBroker> brokers = new LinkedList<>();
+        if (site != null && site.getBrokers() != null || !site.getBrokers().isEmpty())
+            brokers.addAll(site.getBrokers());
+        return brokers;
     }
 
     public List<RegistryServiceInstance> getVisibleSharedRegistryServiceInstances(Authentication authentication) throws NotAuthorizedException {
@@ -90,6 +92,7 @@ public class VisibilityManager {
         String username = authentication.getName();
 
         if (isAdminUser(authentication)) {
+            log.info("Identified admin user, granting full access.");
             LinkedList<ServiceBroker> brokers = new LinkedList<>();
             for (ServiceBroker broker : brokerManager.getAll()) {
                 brokers.add(broker);
@@ -99,6 +102,8 @@ public class VisibilityManager {
         if (!canAccessServices(authentication)) throw new NotAuthorizedException(username, BasicAuthSecurityConfig.SERVICES_AUTHORITY);
         try {
             CloudContext context = contextManager.getContextFromUsername(username);
+            List<ServiceBroker> brokers = getVisibleServiceBrokers(context);
+            log.debug("User "+username+" has access to following service brokers: "+brokers);
             return getVisibleServiceBrokers(context);
         } catch (ResourceNotFoundException ex) {
             return new LinkedList<ServiceBroker>();
