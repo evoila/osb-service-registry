@@ -6,8 +6,8 @@ import de.evoila.osb.service.registry.exceptions.NotAuthorizedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.CloudContext;
 import de.evoila.osb.service.registry.model.CloudSite;
+import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
-import de.evoila.osb.service.registry.properties.BaseAuthenticationBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -23,23 +23,33 @@ public class VisibilityManager {
 
     private static Logger log = LoggerFactory.getLogger(VisibilityManager.class);
 
-    private BaseAuthenticationBean authenticationBean;
     private CloudContextManager contextManager;
     private ServiceDefinitionCacheManager cacheManager;
     private ServiceBrokerManager brokerManager;
+    private SharedInstancesManager sharedInstancesManager;
 
-    public VisibilityManager(BaseAuthenticationBean authenticationBean, CloudContextManager contextManager, ServiceDefinitionCacheManager cacheManager, ServiceBrokerManager brokerManager) {
-        this.authenticationBean = authenticationBean;
+    public VisibilityManager(CloudContextManager contextManager, ServiceDefinitionCacheManager cacheManager, ServiceBrokerManager brokerManager, SharedInstancesManager sharedInstancesManager) {
         this.contextManager = contextManager;
         this.cacheManager = cacheManager;
         this.brokerManager = brokerManager;
+        this.sharedInstancesManager = sharedInstancesManager;
     }
-
 
     private List<ServiceBroker> getVisibleServiceBrokers(CloudContext context) {
         CloudSite site = context.getSite();
         if (site == null || site.getBrokers() == null || site.getBrokers().isEmpty()) return new LinkedList<>();
         return site.getBrokers();
+    }
+
+    public List<RegistryServiceInstance> getVisibleSharedRegistryServiceInstances(Authentication authentication) throws NotAuthorizedException {
+        String username = authentication.getName();
+
+        LinkedList<RegistryServiceInstance> sharedInstances = new LinkedList<>();
+        List<ServiceBroker> brokers = getVisibleServiceBrokersForUser(authentication);
+        for (ServiceBroker broker : brokers) {
+            sharedInstances.addAll(broker.getSharedServiceInstances());
+        }
+        return sharedInstances;
     }
 
     public List<ServiceDefinition> getVisibleServiceDefinitionsForUser(Authentication authentication) throws NotAuthorizedException {

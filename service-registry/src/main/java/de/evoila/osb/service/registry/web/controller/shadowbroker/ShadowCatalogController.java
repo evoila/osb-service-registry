@@ -49,12 +49,8 @@ public class ShadowCatalogController extends BaseController {
         List<ServiceDefinition> visibleDefinitions = visibilityManager.getVisibleServiceDefinitionsForUser(authentication);
         returnedDefinitions.addAll(visibleDefinitions);
 
-        List<RegistryServiceInstance> sharedInstances = sharedInstancesManager.getSharedServiceInstances();
-        for (RegistryServiceInstance sharedInstance: sharedInstances) {
-            if (visibilityManager.)
-        }
-
-        ServiceDefinition sharedDefinition = sharedInstancesManager.getSharedServiceDefinition();
+        List<RegistryServiceInstance> sharedInstances = visibilityManager.getVisibleSharedRegistryServiceInstances(authentication);
+        ServiceDefinition sharedDefinition = sharedInstancesManager.getSharedServiceDefinition(sharedInstances);
         if (sharedDefinition.getPlans() != null && sharedDefinition.getPlans().size() > 0)
             returnedDefinitions.add(sharedDefinition);
 

@@ -100,9 +100,25 @@ public class SharedInstancesManager {
         return sharedDefinition;
     }
 
+    /**
+     * Returns a sharedservice definition with all shared service instances.
+     * @return shared service definition with all shared service instances
+     */
     public ServiceDefinition getSharedServiceDefinition() {
+        List<RegistryServiceInstance> sharedInstances = getSharedServiceInstances();
+        ServiceDefinition sharedDefinition = getSharedServiceDefinition(sharedInstances);
+        return sharedDefinition;
+    }
+
+    /**
+     * Returns a shared service definition with the given shared instances
+     * @param instances shared instances to add to the definition
+     * @return shared service definition with the given shared instances
+     */
+    public ServiceDefinition getSharedServiceDefinition(List<RegistryServiceInstance> instances) {
         ServiceDefinition sharedDefinition = getEmptySharedServiceDefinition();
-        addAllSharedInstancesAsPlan(sharedDefinition);
+        if (instances != null && !instances.isEmpty())
+            addSharedInstancesAsPlan(sharedDefinition, instances);
         return sharedDefinition;
     }
 
@@ -112,11 +128,6 @@ public class SharedInstancesManager {
         ServiceDefinition sharedDefintion = getEmptySharedServiceDefinition();
         addSharedInstancesAsPlan(sharedDefintion, instances);
         return Optional.of(sharedDefintion);
-    }
-
-    private void addAllSharedInstancesAsPlan(ServiceDefinition sharedDefinition) {
-        List<RegistryServiceInstance> sharedInstances = getSharedServiceInstances();
-        addSharedInstancesAsPlan(sharedDefinition, sharedInstances);
     }
 
     public void addSharedInstancesAsPlan(ServiceDefinition sharedDefinition, List<RegistryServiceInstance> instances) {
