@@ -2,8 +2,8 @@ package de.evoila.osb.service.registry.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.manager.Identifiable;
+import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -33,8 +33,8 @@ public class CloudSite implements Identifiable {
     @ManyToMany
     @JoinTable(
             name = "broker_site",
-            joinColumns = { @JoinColumn(name = "broker_id") },
-            inverseJoinColumns = { @JoinColumn(name = "site_id") }
+            joinColumns = @JoinColumn(name = "site_id"),
+            inverseJoinColumns = @JoinColumn(name = "broker_id")
     )
     @LazyCollection(LazyCollectionOption.FALSE)
     @JsonIgnore
