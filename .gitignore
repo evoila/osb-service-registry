@@ -10,3 +10,6 @@ service-registry/src/main/resources/application.yml
 service-registry/src/main/resources/application-test.yml
 service-registry/src/main/resources/application-local.yml
 service-registry/src/main/resources/application-cf.yml
+.settings/
+.project
+service-registry/.classpath

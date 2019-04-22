@@ -6,15 +6,20 @@ import de.evoila.cf.broker.model.catalog.plan.Plan;
 import de.evoila.osb.service.registry.exceptions.NotSharedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
+import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
+import de.evoila.osb.service.registry.model.service.broker.SharedContext;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SharedInstancesManager {
 
     public static final String SHARED_DEFINITIONS_ID = "shared-instances-id";
+    public static final String SHARED_DEFINITIONS_NAME = "shared-instance";
+    public static final String SHARED_DEFINITIONS_DESCRIPTION = "This service definition represents the shared service instances.";
 
     private RegistryServiceInstanceManager instanceManager;
     private ServiceDefinitionCacheManager cacheManager;
@@ -83,33 +88,83 @@ public class SharedInstancesManager {
         return getSharedServiceInstances(idAtServiceBroker).size() < 2;
     }
 
-    public ServiceDefinition getSharedServiceDefinition() {
+    public ServiceDefinition getEmptySharedServiceDefinition() {
         ServiceDefinition sharedDefinition = new ServiceDefinition();
         sharedDefinition.setId(SHARED_DEFINITIONS_ID);
-        sharedDefinition.setName("shared-instances");
-        sharedDefinition.setDescription("This service definition represents the shared service instances.");
+        sharedDefinition.setName(SHARED_DEFINITIONS_NAME);
+        sharedDefinition.setDescription(SHARED_DEFINITIONS_DESCRIPTION);
         sharedDefinition.setBindable(true);
-        sharedDefinition.setInstancesRetrievable(false);
-        sharedDefinition.setBindingsRetrievable(false);
+        sharedDefinition.setInstancesRetrievable(true);
+        sharedDefinition.setBindingsRetrievable(true);
         sharedDefinition.setPlans(new LinkedList<>());
-        addSharedInstancesAsPlan(sharedDefinition);
         return sharedDefinition;
     }
 
-    private void addSharedInstancesAsPlan(ServiceDefinition sharedDefinition) {
+    /**
+     * Returns a sharedservice definition with all shared service instances.
+     * @return shared service definition with all shared service instances
+     */
+    public ServiceDefinition getSharedServiceDefinition() {
         List<RegistryServiceInstance> sharedInstances = getSharedServiceInstances();
-        List<Plan> plans = sharedDefinition.getPlans();
-        for (RegistryServiceInstance instance : sharedInstances) {
-            Plan plan = new Plan();
-            ServiceDefinition definition = cacheManager.getDefinition(instance.getBroker().getId()
-                    , instance.isOriginalInstance() ? instance.getServiceDefinitionId() : instance.getSharedContext().getServiceDefinitionId());
-            plan.setId(instance.getId());
-            plan.setName(definition == null ? "si-of-an-unknown-service" : "si-of-" + definition.getName());
-            plan.setDescription("Org: " + instance.getOrganizationGuid() + ", Space: " + instance.getSpaceGuid());
-            plan.setFree(false);
-            plan.setPlatform(Platform.EXISTING_SERVICE);
+        ServiceDefinition sharedDefinition = getSharedServiceDefinition(sharedInstances);
+        return sharedDefinition;
+    }
 
-            plans.add(plan);
+    /**
+     * Returns a shared service definition with the given shared instances
+     * @param instances shared instances to add to the definition
+     * @return shared service definition with the given shared instances
+     */
+    public ServiceDefinition getSharedServiceDefinition(List<RegistryServiceInstance> instances) {
+        ServiceDefinition sharedDefinition = getEmptySharedServiceDefinition();
+        if (instances != null && !instances.isEmpty())
+            addSharedInstancesAsPlan(sharedDefinition, instances);
+        return sharedDefinition;
+    }
+
+    public Optional<ServiceDefinition> getSharedServiceDefinition(ServiceBroker serviceBroker) {
+        if (serviceBroker == null) return Optional.empty();
+        List<RegistryServiceInstance> instances = serviceBroker.getSharedServiceInstances();
+        ServiceDefinition sharedDefintion = getEmptySharedServiceDefinition();
+        addSharedInstancesAsPlan(sharedDefintion, instances);
+        return Optional.of(sharedDefintion);
+    }
+
+    public void addSharedInstancesAsPlan(ServiceDefinition sharedDefinition, List<RegistryServiceInstance> instances) {
+        if (sharedDefinition == null || sharedDefinition.getPlans() == null || instances == null) return;
+
+        List<Plan> plans = sharedDefinition.getPlans();
+
+        List<SharedContext> alreadyAdded = new LinkedList<>();
+        for (RegistryServiceInstance instance : instances) {
+            if (instance.isOriginalInstance() && instance.getSharedContext() != null) {
+                Optional<Plan> plan = getPlanFromInstance(instance);
+                if (plan.isPresent())
+                    plans.add(plan.get());
+                alreadyAdded.add(instance.getSharedContext());
+            }
         }
+
+        for (RegistryServiceInstance instance : instances) {
+            if (instance.getSharedContext() != null && !alreadyAdded.contains(instance.getSharedContext())) {
+                Optional<Plan> plan = getPlanFromInstance(instance);
+                if (plan.isPresent()) {
+                    plans.add(plan.get());
+                    alreadyAdded.add(instance.getSharedContext());
+                }
+
+            }
+        }
+    }
+
+    public Optional<Plan> getPlanFromInstance(RegistryServiceInstance instance) {
+        if (instance == null || instance.getSharedContext() == null) return Optional.empty();
+        Plan plan = new Plan();
+        plan.setId(instance.getSharedContext().getServiceInstanceId());
+        plan.setName("si-" + instance.getSharedContext().getDisplayNameOrDefaultName());
+        plan.setDescription(instance.getSharedContext().getDescription());
+        plan.setFree(false);
+        plan.setPlatform(Platform.EXISTING_SERVICE);
+        return Optional.of(plan);
     }
 }

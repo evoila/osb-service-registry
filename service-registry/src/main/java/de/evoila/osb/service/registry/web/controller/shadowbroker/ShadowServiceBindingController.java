@@ -1,9 +1,11 @@
-package de.evoila.osb.service.registry.web.controller.shadow_broker;
+package de.evoila.osb.service.registry.web.controller.shadowbroker;
 
 import de.evoila.cf.broker.model.JobProgressResponse;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingRequest;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
+import de.evoila.osb.service.registry.exceptions.AlreadyExistingException;
+import de.evoila.osb.service.registry.exceptions.NotAuthorizedException;
 import de.evoila.osb.service.registry.exceptions.ResourceNotFoundException;
 import de.evoila.osb.service.registry.exceptions.SharedContextInvalidException;
 import de.evoila.osb.service.registry.manager.*;
@@ -12,11 +14,13 @@ import de.evoila.osb.service.registry.model.service.broker.RegistryBinding;
 import de.evoila.osb.service.registry.model.service.broker.RegistryServiceInstance;
 import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.web.controller.BaseController;
-import de.evoila.osb.service.registry.web.request.services.ShadowServiceBindingRequestService;
+import de.evoila.osb.service.registry.web.request.services.ServiceBindingRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -33,21 +37,21 @@ public class ShadowServiceBindingController extends BaseController {
     private ServiceDefinitionCacheManager cacheManager;
     private RegistryServiceInstanceManager serviceInstanceManager;
     private RegistryBindingManager bindingManager;
-    private SharedInstancesManager sharedInstancesManager;
+    private VisibilityManager visibilityManager;
 
-    public ShadowServiceBindingController(ServiceBrokerManager sbManager, ServiceDefinitionCacheManager cacheManager, RegistryServiceInstanceManager serviceInstanceManager, RegistryBindingManager bindingManager, SharedInstancesManager sharedInstancesManager) {
+    public ShadowServiceBindingController(ServiceBrokerManager sbManager, ServiceDefinitionCacheManager cacheManager, RegistryServiceInstanceManager serviceInstanceManager, RegistryBindingManager bindingManager, VisibilityManager visibilityManager) {
         this.sbManager = sbManager;
         this.cacheManager = cacheManager;
         this.serviceInstanceManager = serviceInstanceManager;
         this.bindingManager = bindingManager;
-        this.sharedInstancesManager = sharedInstancesManager;
+        this.visibilityManager = visibilityManager;
     }
 
     @GetMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}")
     public ResponseEntity<?> fetchBinding(
             @PathVariable("instanceId") String serviceInstanceId,
             @PathVariable("bindingId") String serviceBindingId,
-            @RequestHeader("X-Broker-API-Version") String apiVersion) throws ResourceNotFoundException {
+            @RequestHeader("X-Broker-API-Version") String apiVersion) throws ResourceNotFoundException, NotAuthorizedException {
 
         log.info("Received shadow service broker fetch service binding request.");
 
@@ -56,8 +60,11 @@ public class ShadowServiceBindingController extends BaseController {
         if (!binding.isBindingOf(serviceInstance))
             throw new ResourceNotFoundException("binding", HttpStatus.BAD_REQUEST);
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, binding)) throw new NotAuthorizedException(authentication.getName());
+
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId);
-        ResponseWithHttpStatus<ServiceInstanceBinding> response = ShadowServiceBindingRequestService.fetchServiceBinding(sb, serviceInstance.getIdForServiceBroker(), serviceBindingId, apiVersion);
+        ResponseWithHttpStatus<ServiceInstanceBinding> response = ServiceBindingRequestService.fetchServiceBinding(sb, serviceInstance.getIdForServiceBroker(), serviceBindingId, apiVersion);
 
         return new ResponseEntity<>(response.getBody(), response.getStatus());
     }
@@ -69,7 +76,7 @@ public class ShadowServiceBindingController extends BaseController {
             @RequestHeader("X-Broker-API-Version") String apiVersion,
             @RequestParam(value = "service_id", required = false) String serviceDefinitionId,
             @RequestParam(value = "plan_id", required = false) String planId,
-            @RequestParam(value = "operation", required = false) String operation) throws ResourceNotFoundException {
+            @RequestParam(value = "operation", required = false) String operation) throws ResourceNotFoundException, NotAuthorizedException {
 
         log.info("Received shadow service broker service binding last operation request.");
 
@@ -77,6 +84,9 @@ public class ShadowServiceBindingController extends BaseController {
         RegistryBinding binding = bindingManager.searchRegistryBinding(serviceBindingId);
         if (!binding.isBindingOf(serviceInstance))
             throw new ResourceNotFoundException("binding", HttpStatus.BAD_REQUEST);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, binding)) throw new NotAuthorizedException(authentication.getName());
 
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId);
         Map<String, String> queryParams = new HashMap<String, String>();
@@ -86,7 +96,7 @@ public class ShadowServiceBindingController extends BaseController {
 
         ResponseWithHttpStatus<JobProgressResponse> response = null;
         try {
-            response = ShadowServiceBindingRequestService.pollServiceBinding(sb, serviceInstance.getIdForServiceBroker(),
+            response = ServiceBindingRequestService.pollServiceBinding(sb, serviceInstance.getIdForServiceBroker(),
                     serviceBindingId, apiVersion, queryParams);
         } catch (HttpClientErrorException ex) {
             if (ex.getStatusCode() != HttpStatus.GONE)
@@ -109,7 +119,6 @@ public class ShadowServiceBindingController extends BaseController {
             } else if (state.equals("failed")) {
                 if (binding.isCreationInProgress()) {
                     log.debug("Operation state is 'failed' and creation is in progress -> removing binding from storage.");
-                    serviceInstance.getBindings().remove(binding);
                     bindingManager.remove(binding);
                 } else if (binding.isDeleteInProgress()) {
                     log.debug("Operation state is 'failed' and deletion is in progress -> toggling deletion flag.");
@@ -129,11 +138,17 @@ public class ShadowServiceBindingController extends BaseController {
             @RequestHeader(value = "X-Broker-API-Originating-Identity", required = false) String originatingIdentity,
             @RequestParam(value = "accepts_incomplete", required = false, defaultValue = "false") Boolean acceptsIncomplete,
             @Valid @RequestBody ServiceInstanceBindingRequest request
-    ) throws ResourceNotFoundException, SharedContextInvalidException {
+    ) throws ResourceNotFoundException, SharedContextInvalidException, AlreadyExistingException, NotAuthorizedException {
 
         log.info("Received shadow service broker create service binding request.");
 
+        if (bindingManager.exists(serviceBindingId))
+            throw new AlreadyExistingException("A binding with the id "+serviceBindingId+" already exists.");
+
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, serviceInstance)) throw new NotAuthorizedException(authentication.getName());
+
         if (!serviceInstance.isOriginalInstance()) {
             if (serviceInstance.getSharedContext() == null)
                 throw new SharedContextInvalidException();
@@ -145,14 +160,17 @@ public class ShadowServiceBindingController extends BaseController {
 
         ServiceBroker sb = sbManager.searchForServiceBrokerWithServiceInstanceId(serviceInstanceId);
         log.debug("Using following service broker for the create binding request: " + sb.getLoggingNameString());
-        ResponseWithHttpStatus<ServiceInstanceBindingResponse> response = ShadowServiceBindingRequestService.createServiceBinding(sb,
+        ResponseWithHttpStatus<ServiceInstanceBindingResponse> response = ServiceBindingRequestService.createServiceBinding(sb,
                 serviceInstance.getIdForServiceBroker(), serviceBindingId, apiVersion, originatingIdentity, acceptsIncomplete, request);
         log.debug("Request to the service broker returned successful with code " + response.getStatus());
 
         // Check that the binding does not exist already, otherwise do not add a new binding.
         // This can be caused by an additional async create call for an already existing binding in creation progress (See OSB specification for async binding creation).
-        if (!bindingManager.get(serviceBindingId).isPresent()) {
-            RegistryBinding binding = new RegistryBinding(serviceBindingId, false, false, serviceInstance);
+        if (!bindingManager.exists(serviceBindingId)) {
+            String appGuid = request.getAppGuid() == null ? request.getBindResource().getAppGuid() : request.getAppGuid();
+            String route = "";
+            if (request.getBindResource() != null && request.getBindResource().getRoute() != null) route = request.getBindResource().getRoute();
+            RegistryBinding binding = new RegistryBinding(serviceBindingId, appGuid, route, false, false, serviceInstance);
             if (acceptsIncomplete && response.getStatus() == HttpStatus.ACCEPTED) {
                 log.debug("Setting creation progress to true for binding: " + serviceBindingId);
                 binding.setCreationInProgress(true);
@@ -172,12 +190,19 @@ public class ShadowServiceBindingController extends BaseController {
             @RequestHeader(value = "X-Broker-API-Originating-Identity", required = false) String originatingIdentity,
             @RequestParam(value = "accepts_incomplete", required = false, defaultValue = "false") Boolean acceptsIncomplete,
             @RequestParam("service_id") String serviceId,
-            @RequestParam("plan_id") String planId) throws ResourceNotFoundException, SharedContextInvalidException {
+            @RequestParam("plan_id") String planId) throws ResourceNotFoundException, SharedContextInvalidException, NotAuthorizedException {
 
         log.info("Received shadow service broker delete service binding request.");
 
         RegistryServiceInstance serviceInstance = serviceInstanceManager.searchServiceInstance(serviceInstanceId);
         RegistryBinding binding = bindingManager.searchRegistryBinding(serviceBindingId);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!visibilityManager.hasAccessTo(authentication, binding)) throw new NotAuthorizedException(authentication.getName());
+
+        if (!serviceId.equals(binding.getServiceInstance().getServiceDefinitionId()) || !planId.equals(binding.getServiceInstance().getPlanId()))
+            throw new ResourceNotFoundException("service binding", HttpStatus.GONE);
+
         if (!binding.isBindingOf(serviceInstance))
             throw new ResourceNotFoundException("binding", HttpStatus.BAD_REQUEST);
 
@@ -194,10 +219,19 @@ public class ShadowServiceBindingController extends BaseController {
         log.debug("Using following service broker for the delete binding request: " + sb.getLoggingNameString());
         ResponseWithHttpStatus<String> response = null;
         try {
-            response = ShadowServiceBindingRequestService.deleteBinding(sb, serviceInstance.getIdForServiceBroker(), serviceId, serviceBindingId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
+            response = ServiceBindingRequestService.deleteBinding(sb, serviceInstance.getIdForServiceBroker(), serviceId, serviceBindingId, planId, apiVersion, originatingIdentity, acceptsIncomplete);
         } catch (HttpClientErrorException ex) {
-            log.error("Received a error when trying to delete binding at the service broker " + sb.getLoggingNameString(), ex);
+            if (ex.getStatusCode() == HttpStatus.GONE && binding.isDeleteInProgress()) {
+                log.debug("Delete request to service broker returned with a 410 GONE and binding is marked as in deletion -> deleting the binding in the service registry.");
+                bindingManager.remove(binding);
+                // Returning a 202 ACCEPTED instead of 410 GONE forces the service registry to manage operations, if the platform needs them.
+                // Therefore returning 410 is simpler and the less error prone approach for the service registry.
+                return new ResponseEntity<>(null, HttpStatus.GONE);
+            }
+
+            log.error("Received an error when trying to delete binding at the service broker " + sb.getLoggingNameString(), ex);
             throw ex;
+
         }
         log.debug("Request to the service broker returned successful with code " + response.getStatus());
 

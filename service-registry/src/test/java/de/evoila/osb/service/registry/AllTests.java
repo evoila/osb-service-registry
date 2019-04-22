@@ -10,7 +10,10 @@ import org.junit.runners.Suite;
         CloudSiteManagerTest.class,
         ServiceBrokerManagerTest.class,
         RegistryBindingManagerTest.class,
-        RegistryServiceInstanceManagerTest.class
+        RegistryServiceInstanceManagerTest.class,
+        ApplicationContextTest.class,
+        ConfigurationTest.class,
+        EndToEndTest.class
 })
 public class AllTests {
 

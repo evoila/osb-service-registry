@@ -16,39 +16,55 @@ import java.util.*;
 public class TestUtils {
 
     private static Random random = new Random();
+    private static int planSerialNumber = 0;
+    private static int definitionSerialNumber = 0;
+    private static int organizationSerialNumber = 0;
+    private static int spaceSerialNumber = 0;
+    private static int companySerialNumber = 0;
+    private static int siteSerialNumber = 0;
 
     public static CloudContext getRandomCloudContext() {
-        return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomBasicAuthToken());
+        return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomLowercaseString(8), getRandomLowercaseString(8), getRandomLowercaseString(8));
     }
 
     public static CloudContext getRandomCloudContext(CloudSite site, Company company) {
-        return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomBasicAuthToken(), site, company);
+        return new CloudContext(getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomUUID(), getRandomLowercaseString(8), getRandomLowercaseString(8), getRandomLowercaseString(8), site, company);
     }
 
     public static CloudSite getRandomCloudSite() {
-        return new CloudSite(getRandomUUID(), Platform.cloudfoundry, "127.0.0.1");
+        return new CloudSite(getRandomUUID(), Platform.cloudfoundry, "127.0.0.1", "test-cloud-site-"+getNextSiteSerialNumber());
     }
 
     public static CloudSite getRandomCloudSite(List<CloudContext> contexts, List<ServiceBroker> serviceBrokers) {
-        return new CloudSite(getRandomUUID(), Platform.cloudfoundry, "127.0.0.1", contexts, serviceBrokers);
+        return new CloudSite(getRandomUUID(), Platform.cloudfoundry, "127.0.0.1", "test-cloud-site-"+getNextSiteSerialNumber(), contexts, serviceBrokers);
     }
 
     public static ServiceBroker getRandomServiceBroker() {
-        return new ServiceBroker(getRandomUUID(), "127.0.0.1", 8080, getRandomBasicAuthToken(), "2.14", "random Description #" + random.nextInt(), random.nextBoolean(), random.nextBoolean());
+        return new ServiceBroker(getRandomUUID(), "127.0.0.1", 8080, "test-salt", getRandomBasicAuthToken(), "2.14", "random Description #" + random.nextInt(), random.nextBoolean(), random.nextBoolean());
+    }
+
+    public static Company getRandomCompany() {
+        return new Company(getRandomUUID(), "test-company-"+getNextCompanySerialNumber(), getRandomBasicAuthToken());
     }
 
     public static ServiceInstance getRandomServiceInstance() {
-        return new ServiceInstance("test-id", "test-service-definition", "test-plan-id", "test-org-od", "test-space-id", new HashMap<String, Object>(), "http://dashboard.url");
+        ServiceDefinition definition = getRandomServiceDefinition(1);
+        Plan plan = definition.getPlans().get(0);
+        return new ServiceInstance(getRandomUUID(), "test-service-definition-"+getNextDefinitionSerialNumber(), plan.getName(),
+                "test-org-id-"+getNextOrganizationSerialNumber(),
+                "test-space-id-"+getNextSpaceSerialNumber(),
+                new HashMap<String, Object>(), "http://dashboard.url");
     }
 
-    public static ServiceDefinition getRandomServiceDefinition() {
+    public static ServiceDefinition getRandomServiceDefinition(int numberOfPlans) {
         List<Plan> plans = new LinkedList<>();
-        plans.add(getRandomPlan());
-        return new ServiceDefinition("test-definition-id", "test-definition-name", "test definition description", true, plans, true);
+        for (int i = 0; i < numberOfPlans; i++)
+            plans.add(getRandomPlan());
+        return new ServiceDefinition(getRandomUUID(), "test-definition-name-"+getNextDefinitionSerialNumber(), "test definition description", true, plans, true);
     }
 
     public static Plan getRandomPlan() {
-        return new Plan("test-plan-id", "test-plan-name", "test plan description", de.evoila.cf.broker.model.Platform.EXISTING_SERVICE, false);
+        return new Plan(getRandomUUID(), "test-plan-name-"+getNextPlanSerialNumber(), "test plan description", de.evoila.cf.broker.model.Platform.EXISTING_SERVICE, false);
     }
 
     public static RegistryServiceInstance getRandomRegistryServiceInstance() {
@@ -56,11 +72,11 @@ public class TestUtils {
     }
 
     public static RegistryBinding getRandomRegistryBinding() {
-        return new RegistryBinding(getRandomUUID(), false, false, null);
+        return new RegistryBinding(getRandomUUID(), getRandomUUID(), "http://test.app.route", false, false, null);
     }
 
     public static String getRandomBasicAuthToken() {
-        return "Basic " + getRandomLowercaseString(24);
+        return getRandomLowercaseString(24);
     }
 
     public static String getRandomLowercaseString(int length) {
@@ -73,4 +89,12 @@ public class TestUtils {
     public static String getRandomUUID() {
         return UUID.randomUUID().toString();
     }
+
+    public static int getNextPlanSerialNumber() { return ++planSerialNumber; }
+    public static int getNextDefinitionSerialNumber() { return ++definitionSerialNumber; }
+    public static int getNextOrganizationSerialNumber() { return ++organizationSerialNumber; }
+    public static int getNextSpaceSerialNumber() { return ++spaceSerialNumber; }
+    public static int getNextCompanySerialNumber() { return ++companySerialNumber; }
+    public static int getNextSiteSerialNumber() { return ++siteSerialNumber; }
+
 }

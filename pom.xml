@@ -134,6 +134,12 @@
             <id>spring-repository</id>
             <url>https://repo.spring.io/libs-release</url>
         </repository>
+
+        <!-- add repository for everit dependency in core -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
 </project>

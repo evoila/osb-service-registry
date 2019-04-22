@@ -1,3 +1,11 @@
+## Registry parameters ##
+registry:
+  update_thread_number: 15
+  timeout_connection: 10000
+  timeout_read: 20000
+  ## Length of 16 needed
+  encryptionKey: exampleKeyExampl
+
 ## Spring parameters ##
 spring:
   application:
@@ -22,11 +30,10 @@ spring:
 
 ## Security parameters ##
 
-# Basic Auth Credentials
+## Basic Auth Credentials ##
 login:
-  username: user
-  password: password
-  role: USER
+  admin_username: admin
+  admin_password: password
 
 
 

@@ -5,4 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface SharedContextRepository extends CrudRepository<SharedContext, String> {
 
+    public SharedContext findByServiceInstanceId(String serviceInstanceId);
 }

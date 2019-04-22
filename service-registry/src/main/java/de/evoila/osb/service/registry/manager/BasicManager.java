@@ -27,7 +27,7 @@ public class BasicManager<T extends Identifiable> {
      * @return An empty {@linkplain Optional} if there is already an object with the same id or an {@linkplain Optional} with the updated saved object.
      */
     public Optional<T> add(T t) {
-        if (get(t.getId()).isPresent())
+        if (exists(t.getId()))
             return Optional.<T>empty();
         return Optional.<T>of(repository.save(t));
     }
@@ -39,25 +39,84 @@ public class BasicManager<T extends Identifiable> {
      * @return An empty {@linkplain Optional} if there is no object with the same id or an {@linkplain Optional} with the updated saved object.
      */
     public Optional<T> update(T t) {
-        Optional<T> existing = get(t.getId());
-        if (existing.isPresent()) {
+        if (exists(t))
             return Optional.<T>of(repository.save(t));
-        }
         return Optional.<T>empty();
     }
 
     public void remove(T t) {
-        remove(t.getId());
+        if (t != null) {
+            removeReferencesFromRelatedObjects(t);
+            repository.delete(t);
+        }
+
     }
 
     public void remove(String id) {
         Optional<T> t = get(id);
-        if (t.isPresent())
-            repository.delete(t.get());
+        if (t.isPresent()) {
+            removeReferencesFromRelatedObjects(t.get());
+            repository.deleteById(id);
+        }
+    }
+
+    /**
+     * Removes all references from other objects to the given object to prevent references onto nothing or not intentional keeping of objects.
+     * ! Note: The BasicManager does not hold this feature by itself since its class T's structure is not known.
+     * ! -> Classes that extend the BasicManager and have information about the class T's structure can implement this feature.
+     */
+    public void removeReferencesFromRelatedObjects(T t) { }
+
+    public void removeMultiple(Iterable<? extends T> iterable) {
+        repository.deleteAll(iterable);
+    }
+
+    /**
+     * Also removes all weak entities or entities that should not exist without a relation, that are tied to this managers class T.
+     * ! Note: The BasicManager does not support cascading removals since its class T's structure is not known, therefore a regular {@linkplain #remove(Identifiable)} is performed.
+     * ! -> Classes that extend the BasicManager and have information about the class T's structure can implement this feature.
+     *
+     * @param t identifiable object to remove cascadingly
+     */
+    public void removeCascading(T t) {
+        remove(t);
+    }
+
+    /**
+     * Also removes all weak entities or entities that should not exist without a relation, that are tied to this managers class T.
+     * ! Note: The BasicManager does not support cascading removals since its class T's structure is not known, therefore a regular {@linkplain #remove(String)} is performed.
+     * ! -> Classes that extend the BasicManager and have information about the class T's structure can implement this feature.
+     * @param id id of the object to remove cascadingly
+     */
+    public void removeCascading(String id) {
+        remove(id);
     }
 
     public void clear() {
         repository.deleteAll();
+    }
+
+    /**
+     * Also removes all weak entities or entities that should not exist without a relation, that are tied to this managers class T.
+     * ! Note: The BasicManager does not support cascading removals since its class T's structure is not known, therefore a regular {@linkplain #clear} is performed.
+     * ! -> Classes that extend the BasicManager and have information about the class T's structure can implement this feature.
+     */
+    public void clearCascading() {
+        clear();
+    }
+
+    public boolean exists(String id) {
+        return repository.existsById(id);
+    }
+
+    public boolean exists(T t) {
+        if (t != null && t.getId() != null || !t.getId().isEmpty())
+            return exists(t.getId());
+        return false;
+    }
+
+    public long count() {
+        return repository.count();
     }
 
 }

@@ -1,37 +1,47 @@
 package de.evoila.osb.service.registry.properties;
 
+import de.evoila.osb.service.registry.util.CredentialsGenerator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 @Service
 @ConfigurationProperties(prefix = "login")
 public class BaseAuthenticationBean {
 
-    private String username;
-    private String password;
-    private String role;
+    private String adminUsername;
+    private String adminPassword;
+    private int passwordLength;
+    private int usernameLength;
 
-    public String getUsername() {
-        return username;
+    @PostConstruct
+    public void setUp(){
+        CredentialsGenerator.usernameLength = Math.max(usernameLength, CredentialsGenerator.DEFAULT_CREDENTIALS_LENGTH);
+        CredentialsGenerator.passwordLength = Math.max(passwordLength, CredentialsGenerator.DEFAULT_CREDENTIALS_LENGTH);
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getAdminUsername() {
+        return adminUsername;
     }
 
-    public String getPassword() {
-        return password;
+    public void setAdminUsername(String adminUsername) {
+        this.adminUsername = adminUsername;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public String getAdminPassword() {
+        return adminPassword;
     }
 
-    public String getRole() {
-        return role;
+    public void setAdminPassword(String adminPassword) {
+        this.adminPassword = adminPassword;
     }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
+    public int getPasswordLength() { return passwordLength; }
+
+    public void setPasswordLength(int passwordLength) { this.passwordLength = passwordLength; }
+
+    public int getUsernameLength() { return usernameLength; }
+
+    public void setUsernameLength(int usernameLength) { this.usernameLength = usernameLength; }
 }

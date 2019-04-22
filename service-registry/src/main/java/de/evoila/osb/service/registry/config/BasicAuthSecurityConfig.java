@@ -7,14 +7,22 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 @Configuration
 @Order(1)
 public class BasicAuthSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    public static final String SERVICES_AUTHORITY = "SERVICES";
+    public static final String MANAGING_AUTHORITY = "MANAGING";
 
     private BaseAuthenticationBean baseAuthenticationBean;
 
@@ -29,25 +37,54 @@ public class BasicAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser(baseAuthenticationBean.getUsername())
-                .password(passwordEncoder().encode(baseAuthenticationBean.getPassword()))
-                .authorities(baseAuthenticationBean.getRole());
+        auth.userDetailsService(userDetailsManager());
+    }
+
+    @Bean
+    public UserDetailsManager userDetailsManager() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        UserDetails admin = User
+                .withUsername(baseAuthenticationBean.getAdminUsername())
+                .password(passwordEncoder().encode(baseAuthenticationBean.getAdminPassword()))
+                .authorities(MANAGING_AUTHORITY, SERVICES_AUTHORITY)
+                .build();
+        manager.createUser(admin);
+
+        return manager;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.antMatcher("/**")
-                .authorizeRequests()
-                .antMatchers("/**").authenticated()
+        http
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                //.and()
+                //.authorizeRequests().anyRequest().denyAll()
+                .and()
+                .authorizeRequests().antMatchers("/status").permitAll()
+                .and()
+                .authorizeRequests().antMatchers("/service_instance/**", "/v2/**").hasAnyAuthority(SERVICES_AUTHORITY)
+                .and()
+                .authorizeRequests().antMatchers("/",
+                                                            "/registryServiceInstances/**",
+                                                            "/registryBindings/**",
+                                                            "/companies/**",
+                                                            "/sharedContexts/**",
+                                                            "/sites/**",
+                                                            "/brokers/**",
+                                                            "/cloudContexts/**",
+                                                            "/profile/**"
+                ).hasAuthority(MANAGING_AUTHORITY)
+                .anyRequest().authenticated()
                 .and()
                 .httpBasic()
                 .and()
-                .anonymous().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint())
+//                .and()
+//                .cors()
                 .and()
-                .csrf().disable();
+                .csrf().disable()
+                ;
     }
 
     @Bean

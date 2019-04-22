@@ -10,9 +10,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ShadowServiceCatalogRequestService extends BaseRequestService {
+public class ServiceCatalogRequestService extends BaseRequestService {
 
-    private static Logger log = LoggerFactory.getLogger(ShadowServiceCatalogRequestService.class);
+    private static Logger log = LoggerFactory.getLogger(ServiceCatalogRequestService.class);
 
     public static ResponseWithHttpStatus<CatalogResponse> getCatalog(ServiceBroker serviceBroker) {
         return getCatalog(serviceBroker, serviceBroker.getApiVersion());
@@ -21,7 +21,7 @@ public class ShadowServiceCatalogRequestService extends BaseRequestService {
     public static ResponseWithHttpStatus<CatalogResponse> getCatalog(ServiceBroker serviceBroker, String apiVersion) {
 
         String url = serviceBroker.getHostWithPort() + "/v2/catalog";
-        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getBasicAuthToken(), apiVersion));
+        HttpEntity entity = new HttpEntity(createBasicHeaders(serviceBroker.getEncryptedBasicAuthToken(), serviceBroker.getSalt(), apiVersion));
 
         log.info("Sending catalog request to " + url);
         return makeRequest(url, HttpMethod.GET, entity, CatalogResponse.class);

@@ -2,8 +2,8 @@ package de.evoila.osb.service.registry.manager;
 
 import de.evoila.osb.service.registry.model.CloudContext;
 import de.evoila.osb.service.registry.model.CloudSite;
-import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.model.Platform;
+import de.evoila.osb.service.registry.model.service.broker.ServiceBroker;
 import de.evoila.osb.service.registry.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -14,6 +14,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -34,6 +37,8 @@ public class CloudSiteManagerTest {
     @After
     public void dropAllCloudSites() {
         ManagerTestService.dropAll(manager);
+        ManagerTestService.dropAll(contextManager);
+        ManagerTestService.dropAll(sbManager);
     }
 
     @Test
@@ -59,7 +64,11 @@ public class CloudSiteManagerTest {
 
     @Test
     public void getCloudSites() {
-        ManagerTestService.<CloudSite>getAll(manager, TestUtils.getRandomCloudSite(), TestUtils.getRandomCloudSite());
+        List<CloudSite> sites = new LinkedList<>();
+        sites.add(TestUtils.getRandomCloudSite());
+        sites.add(TestUtils.getRandomCloudSite());
+        sites.add(TestUtils.getRandomCloudSite());
+        ManagerTestService.<CloudSite>getAll(manager, sites, false);
     }
 
     @Test

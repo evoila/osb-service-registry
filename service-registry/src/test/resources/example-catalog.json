@@ -1,0 +1,163 @@
+{
+  "services": [
+    {
+      "id": "eda9c814-223e-42fd-93b2-97690ef3d6ad",
+      "name": "osb-example",
+      "description": "First example service of an example service broker.",
+      "bindable": true,
+      "plans": [
+        {
+          "id": "15a7c1f8-ccac-4a54-83cd-b9aa8ce256ec",
+          "name": "s",
+          "description": "Small example plan",
+          "metadata": {
+            "bullets": [
+              "1 GB disk size",
+              "super-fast",
+              "awesome"
+            ],
+            "costs": [
+              {
+                "amount": {
+                  "eur": 10.732
+                },
+                "unit": "monthly per vm"
+              },
+              {
+                "amount": {
+                  "eur": 10.54,
+                  "usd": 21.125
+                },
+                "unit": "weekly per call"
+              }
+            ],
+            "displayName": "Small service",
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": true
+        },
+        {
+          "id": "61d5ed1e-8ba5-4959-bf37-d4512b3188f2",
+          "name": "m",
+          "description": "Medium example plan",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        },
+        {
+          "id": "8f65fcb6-421f-4703-85e8-67f0f3623094",
+          "name": "l",
+          "description": "Large example plan",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        },
+        {
+          "id": "a53178c7-db9c-48ab-961f-28372c788c66",
+          "name": "xl",
+          "description": "Extra large example plan",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        }
+      ],
+      "tags": [],
+      "metadata": {
+        "displayName": "osb-example",
+        "longDescription": "This service is an example of an example service broker and does therefor not hold any real features.",
+        "providerDisplayName": "Example Provider",
+        "documentationUrl": "http://docs.provider.com",
+        "supportUrl": "http://support.provider.com"
+      },
+      "requires": [],
+      "dashboard": {
+        "url": "https://osb-example.cf/custom/v2/authentication",
+        "auth_endpoint": "https://uaa.cf/oauth"
+      },
+      "instances_retrievable": true,
+      "bindings_retrievable": true,
+      "dashboard_client": {
+        "id": "osb-example.cf",
+        "secret": "super-secret-dashboard-secret",
+        "redirect_uri": "https://osb-example.cf/custom/v2/authentication"
+      },
+      "plan_updateable": false
+    },
+    {
+      "id": "77fadab9-9eac-4cb6-ac6f-5bcb3a5806ff",
+      "name": "osb-example-second",
+      "description": "Second example service of an example service broker.",
+      "bindable": true,
+      "plans": [
+        {
+          "id": "80e82c23-0039-4b0a-a726-634ea896c94a",
+          "name": "s",
+          "description": "Another small plan",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": true
+        },
+        {
+          "id": "6d578289-12aa-4951-a25c-20bc1d64825f",
+          "name": "m",
+          "description": "Another medium plan",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        },
+        {
+          "id": "d484387b-8937-4aa7-a52e-4d108b81c850",
+          "name": "l",
+          "description": "Another large plan",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        },
+        {
+          "id": "82593fc3-a16d-449c-ae8a-8decff37cd76",
+          "name": "xl",
+          "description": "Another extra large plan",
+          "metadata": {
+            "instanceGroupConfig": [],
+            "customParameters": {}
+          },
+          "free": false
+        }
+      ],
+      "tags": [],
+      "metadata": {
+        "displayName": "osb-example-second",
+        "longDescription": "This service is another example of an example service broker and does therefor not hold any real features.",
+        "providerDisplayName": "Example Provider",
+        "documentationUrl": "http://docs.provider.com",
+        "supportUrl": "http://support.provider.com"
+      },
+      "requires": [],
+      "dashboard": {
+        "url": "https://osb-example.cf/v2/authentication",
+        "auth_endpoint": "https://uaa.cf/oauth"
+      },
+      "instances_retrievable": true,
+      "bindings_retrievable": true,
+      "dashboard_client": {
+        "id": "osb-example-second.cf",
+        "secret": "hyper-secret-dashboard-secret",
+        "redirect_uri": "https://osb-example.cf/v2/authentication"
+      },
+      "plan_updateable": false
+    }
+  ]
+}
