@@ -225,7 +225,8 @@ public class EndToEndTest {
         List<ServiceDefinition> catalogDefinitions = catalogResponse.getBody().getServices();
         if (hasToBeEmpty) {
             assertTrue("Service Registry already has service definitions but should be empty.", definitions.isEmpty());
-            assertTrue("Service Registry returned service definitions but should not.", catalogDefinitions.isEmpty());
+            assertTrue("Service Registry returned service definitions unequal to the dummy-service-definition but should not."
+                    , catalogDefinitions.size() == 1 && catalogDefinitions.get(0).getName().equals("empty-service-definition"));
         } else {
             // Check catalog after a broker was registered ( a broker has to hold atleast one service definition!)
             assertFalse("Service Registry should have service definitions by now.", definitions.isEmpty());
