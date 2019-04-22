@@ -34,6 +34,8 @@ spring:
 login:
   admin_username: admin
   admin_password: password
+  username_length: 10
+  password_length: 10
 
 
 
