@@ -57,8 +57,6 @@ public class BasicAuthSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                //.and()
-                //.authorizeRequests().anyRequest().denyAll()
                 .and()
                 .authorizeRequests().antMatchers("/status").permitAll()
                 .and()
@@ -80,8 +78,6 @@ public class BasicAuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint())
-//                .and()
-//                .cors()
                 .and()
                 .csrf().disable()
                 ;
