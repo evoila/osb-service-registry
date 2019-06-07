@@ -25,14 +25,17 @@ Following configuration parameters exist:
 | registry.update_thread_number  | integer | Maximum thread pool size when updating catalogs |
 | registry.timeout_connection | integer | Timeout for connection with service brokers |
 | registry.timeout_read | integer | Timeout for reading responses of service brokers |
+| registry.encryptionKey | String | Encription key for the encription algorithm of the service registry. Has to be 16 characters long. [a-zA-Z] |
 | spring.application.name<span></span> | String | Name of the spring application |
 | spring.jpa.hibernate.ddl-auto | String | Option for hibernate DDL validation and export (see [community documentation]) |
 | spring.jpa.hibernate.dialect | String | SQL dialect of the underlying database |
 | spring.datasource.url | String | Connection string for the database |
 | spring.datasource.username | String | Username for the database |
 | spring.datasource.password | String | Password for the user |
-| login.username | String | Basic Auth name |
-| login.password | String | Basic Auth password |
+| login.admin_username | String | Basic Auth admin name |
+| login.admin_password | String | Basic Auth admin password |
+| login.username_length | integer | Length of generated usernames |
+| login.password_length | integer | Length of generated passwords |
 
 ## Building the project
 
