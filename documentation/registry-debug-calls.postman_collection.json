@@ -1,0 +1,1240 @@
+{
+	"info": {
+		"_postman_id": "8a7c56d5-7d5b-4266-80f1-e04021dcb046",
+		"name": "OSB Service Registry Debug Calls",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Local",
+			"item": [
+				{
+					"name": "Cloud Context",
+					"item": [
+						{
+							"name": "Get All Contexts - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "127.0.0.1:8080/cloudContexts",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"cloudContexts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Context - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "127.0.0.1:8080/cloudContexts/<context-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"cloudContexts",
+										"<context-id>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Context - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"organization\" : \"testorg\",\n\t\"space\" : \"testspace\",\n\t\"namespace\" : \"testnamespace\",\n\t\"site\" : \"http://127.0.0.1:8080/sites/<site>\",\n\t\"company\" : \"http://127.0.0.1:8080/companies/<company>\"\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/cloudContexts",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"cloudContexts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Context - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"organization\" : \"changedOrg\",\n\t\"space\" : \"changedSpace\",\n\t\"namespace\" : \"changedNamespace\",\n\t\"company\" : \"http://127.0.0.1:8080/companies/<company>\"\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/cloudContexts/<context-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"cloudContexts",
+										"<context-id>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Context - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/site/<site-id>/context/<context-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"site",
+										"<site-id>",
+										"context",
+										"<context-id>"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Service Broker",
+					"item": [
+						{
+							"name": "Catalog",
+							"item": [
+								{
+									"name": "Get Catalog - Local",
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "127.0.0.1:8080/brokers/<broker-id>/v2/catalog",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8080",
+											"path": [
+												"brokers",
+												"<broker-id>",
+												"v2",
+												"catalog"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Get All Brokers - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "127.0.0.1:8080/brokers",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"brokers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Info For SB - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "127.0.0.1:8080/brokers/<broker-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"brokers",
+										"<broker-id>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register Broker - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"host\" : \"http://example.broker.com\",\n\t\"port\" : 80,\n\t\"apiVersion\" : \"2.14\",\n\t\"description\" : \"Example service broker\",\n\t\"username\": \"user\",\n\t\"password\": \"password\",\n\t\"cloudFoundryAllowed\" : true,\n\t\"kubernetesAllowed\" : false\n\t\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/brokers",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"brokers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Broker - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"host\" : \"example.broker.com\",\n\t\"port\" : 80,\n\t\"username\" : \"user\",\n\t\"password\" : \"password\",\n\t\"apiVersion\": \"2.14\",\n    \"description\": \"Example service broker\",\n\t\"cloudFoundryAllowed\" : true,\n\t\"kubernetesAllowed\" : true\n\t\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/brokers/<broker-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"brokers",
+										"<broker-id>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Broker - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/brokers/ybroker-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"brokers",
+										"ybroker-id>"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Cloud Site",
+					"item": [
+						{
+							"name": "Get All Sites - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "127.0.0.1:8080/cloudSites",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"cloudSites"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register Site - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"host\" : \"http://example.cf.com\",\n\t\"platform\" : \"cloudfoundry\"\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/cloudSites",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"cloudSites"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Site - Local",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"host\" : \"example.cf.com\",\n\t\"platform\" : \"cloudfoundry\"\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/cloudSites/<site-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"cloudSites",
+										"<site-id>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Broker to Cloud Site Copy",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "text/uri-list",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "http://sr.host/brokers/<broker-id>"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/sites/<site-id>/brokers",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"sites",
+										"<site-id>",
+										"brokers"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Company",
+					"item": [
+						{
+							"name": "Get All Companies",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "127.0.0.1:8080/companies",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"companies"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register Company",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"name\" : \"testCompany\",\n\t\"basicAuthToken\" : \"testToken\"\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/companies",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"companies"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Company",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/companies/<company-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"companies",
+										"<company-id>"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Shadow Service Broker",
+					"item": [
+						{
+							"name": "Get Catalogs",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "127.0.0.1:8080/v2/catalog",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"catalog"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Service Instance",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.14",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service Instance Polling",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.13",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>/last_operation",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>",
+										"last_operation"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Provision Instance",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.13",
+										"type": "text"
+									},
+									{
+										"key": "X-Broker-API-Originating-Identity",
+										"value": "cloudfoundry faketoken",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"service_id\" : \"<service-id>\",\n\t\"plan_id\" : \"<plan-id>\",\n\t\"organization_guid\" : \"org\",\n\t\"space_guid\" : \"space\",\n\t\"context\" : {},\n\t\"parameters\" : {}\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>?accepts_incomplete=true",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>"
+									],
+									"query": [
+										{
+											"key": "accepts_incomplete",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Instance",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.14",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"service_id\" : \"<service-id>\",\n\t\"plan_id\" : \"<plan-id>\",\n\t\"context\" : {},\n\t\"parameters\" : {},\n\t\"previous_values\": {\n    \t\"plan_id\": \"<old-service-id>\",\n    \t\"service_id\": \"<old-plan-id>\"\n\n  }\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>accepts_incomplete=false",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>accepts_incomplete=false"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deprovision Service Instance",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.13",
+										"type": "text"
+									},
+									{
+										"key": "X-Broker-API-Originating-Identity",
+										"value": "cloudfoundry faketoken",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>?accepts_incomplete=true&service_id=<service-id>&plan_id=<plan-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>"
+									],
+									"query": [
+										{
+											"key": "accepts_incomplete",
+											"value": "true"
+										},
+										{
+											"key": "service_id",
+											"value": "<service-id>"
+										},
+										{
+											"key": "plan_id",
+											"value": "<plan-id>"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Binding",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.14",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"service_id\" : \"<service-id>\",\n\t\"plan_id\" : \"<plan-id>\",\n\t\"app_guid\" : \"example-app\"\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>/service_bindings/<binding-id>?accepts_incomplete=true",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>",
+										"service_bindings",
+										"<binding-id>"
+									],
+									"query": [
+										{
+											"key": "accepts_incomplete",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Binding",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.14",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>/service_bindings/<binding-id>?accepts_incomplete=true&service_id=<service-id>&plan_id=<plan-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>",
+										"service_bindings",
+										"<binding-id>"
+									],
+									"query": [
+										{
+											"key": "accepts_incomplete",
+											"value": "true"
+										},
+										{
+											"key": "service_id",
+											"value": "<service-id>"
+										},
+										{
+											"key": "plan_id",
+											"value": "<plan-id>"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Binding Polling",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.14",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>/service_bindings/<binding-id>/last_operation?service_id=<service-id>&plan_id=<plan-id>&operation=taskXYZ",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>",
+										"service_bindings",
+										"<binding-id>",
+										"last_operation"
+									],
+									"query": [
+										{
+											"key": "service_id",
+											"value": "<service-id>"
+										},
+										{
+											"key": "plan_id",
+											"value": "<plan-id>"
+										},
+										{
+											"key": "operation",
+											"value": "taskXYZ"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Binding",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.14",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>/service_bindings/<binding-id>",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>",
+										"service_bindings",
+										"<binding-id>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Provision Shared Instance",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "X-Broker-API-Version",
+										"value": "2.13",
+										"type": "text"
+									},
+									{
+										"key": "X-Broker-API-Originating-Identity",
+										"value": "cloudfoundry faketoken",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"service_id\" : \"shared-instances-id\",\n\t\"plan_id\" : \"<instance-id>\",\n\t\"organization_guid\" : \"org\",\n\t\"space_guid\" : \"space\",\n\t\"context\" : {},\n\t\"parameters\" : {}\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>?accepts_incomplete=true",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>"
+									],
+									"query": [
+										{
+											"key": "accepts_incomplete",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Shared Binding",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-Broker-API-Version",
+										"type": "text",
+										"value": "2.14"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"service_id\": \"shared-instances-id\",\n    \"plan_id\": \"<instance-id>\",\n\t\"app_guid\" : \"example-app\"\n}"
+								},
+								"url": {
+									"raw": "127.0.0.1:8080/v2/service_instances/<instance-id>/service_bindings/<binding-id>?accepts_incomplete=true",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8080",
+									"path": [
+										"v2",
+										"service_instances",
+										"<instance-id>",
+										"service_bindings",
+										"<binding-id>"
+									],
+									"query": [
+										{
+											"key": "accepts_incomplete",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Status - Local",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8080/status",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Instances",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8080/registryServiceInstances",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"registryServiceInstances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set Shareable Status",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "127.0.0.1:8080/service_instance/<instance-id>/shareable?sharing=true",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"service_instance",
+								"<instance-id>",
+								"shareable"
+							],
+							"query": [
+								{
+									"key": "sharing",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cloud Controller",
+			"item": [
+				{
+					"name": "GET services for space",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "example-cf.com/v2/spaces/<space-id>",
+							"host": [
+								"example-cf",
+								"com"
+							],
+							"path": [
+								"v2",
+								"spaces",
+								"<space-id>"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "password",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "username",
+				"type": "string"
+			}
+		]
+	}
+}

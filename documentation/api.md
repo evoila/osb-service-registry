@@ -56,6 +56,8 @@ GET /status
 }
 ```
 
+## Postman Collection
+In the file [registry-debug-calls.postman_collection.json] a postman collection is stored for developers to use when working with the service registry. This collection is not supposed to offer a complete list of all calls the API supports, but holds the core calls which could be used when developing (for) the service registry. Please note, that authorization has to be added as well as placeholder ids have to be replaced.
 
 ---
 <p align="center">
@@ -67,3 +69,4 @@ GET /status
 [osb-API]: https://github.com/openservicebrokerapi/servicebroker
 [Shadow Service Broker]: ./shadowservicebroker.md
 [Service Broker Communication]: ./servicebrokercommunication.md
+[registry-debug-calls.postman_collection.json]: ./registry-debug-calls.postman_collection.json
