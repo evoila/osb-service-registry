@@ -107,6 +107,12 @@
             <scope>test</scope>
         </dependency>
         <!-- /Testing -->
+
+        <!-- Due to upgrade to Java 12 -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
